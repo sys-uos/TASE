@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List
 import pandas as pd
 
 from TASE.src.models import Recording_Node
@@ -49,9 +49,8 @@ def parse_audiomoth_locations(csv_file: str="./data/preprocessed/node_locations.
     - 'longitude': Decimal degrees (float, range -180 to 180)
 
     Example of csv_file:
-        id,latitude,longitude
-        recording_001,40.7128,-74.0060
-        recording_002,34.0522,-118.2437
+        DeploymentIDs,AudiomothIDs,,GPS_ID,"m_lat [WGS84 Ellipsiod, WGS84 Koordsystem]","m_lon  [WGS84 Ellipsiod, WGS84 Koordsystem]","m_elevation  [WGS84 Ellipsiod, WGS84 Koordsystem]",above_ground [cm]
+        1,2474750763FA466E,,A01,52.009779,8.05353967,66.31633867,126
     """
     df = pd.read_csv(csv_file)
     df = df.rename(columns={'m_lat [WGS84 Ellipsiod, WGS84 Koordsystem]': 'm_lat',

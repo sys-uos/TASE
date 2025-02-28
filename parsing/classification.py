@@ -1,8 +1,6 @@
 import os
-
 import pandas as pd
 from datetime import datetime
-
 import pytz
 
 
@@ -24,50 +22,32 @@ def convert_timestamp_to_datetime(timestamp: float, timezone: str = "Europe/Berl
 
 
 def add_date_to_classification_dataframe(dict_devid_df, epochtime_offset, sample_rate=48000) -> pd.DataFrame:
+    """
+        Adjusts the start and end times in multiple classification DataFrames by converting
+        sample-based timestamps to epoch-based timestamps.
+
+        Parameters:
+        ----------
+        dict_devid_df : dict[str, pd.DataFrame]
+            A dictionary where keys are device IDs (strings) and values are Pandas DataFrames.
+            Each DataFrame must contain 'start' and 'end' columns with values in sample indices.
+
+        epochtime_offset : float
+            The epoch time (Unix timestamp) that serves as the reference point for conversion.
+
+        sample_rate : int, optional (default=48000)
+            The sample rate in Hz, used to convert sample indices into seconds.
+
+        Returns:
+        -------
+        dict_devid_df : dict[str, pd.DataFrame]
+            The same dictionary with updated DataFrames where 'start' and 'end' times
+            are converted to absolute epoch time.
+    """
     for key, df_value in dict_devid_df.items():
         df_value["start"] = df_value["start"] / sample_rate + epochtime_offset
         df_value["end"] = df_value["end"] / sample_rate + epochtime_offset
     return dict_devid_df
-
-def parse_classifications_as_dir(dir_path,
-                                column_mapping=None):
-    all_data = {}
-
-    for node_dir in os.listdir(dir_path):
-        node_path = os.path.join(dir_path, node_dir)
-        if os.path.isdir(node_path):
-            node_data = []
-            current_offset = 0
-
-            i = 0
-            for file in sorted(os.listdir(node_path)):
-                # print(file)
-                if file.endswith('.BirdNET.results.txt'):
-                    file_path = os.path.join(node_path, file)
-                    df = pd.read_csv(file_path, header=None,
-                                     names=['start', 'end', 'species_latin', 'species_common', 'confidence'],
-                                     sep=',')
-
-                    df['start'] += current_offset
-                    df['end'] += current_offset
-                    current_offset = df['end'].max() + (48000 * 5)
-
-                    # print(df)
-
-                    node_data.append(df)
-                    # if i == 6:
-                    #     break
-                    # i += 1
-
-            if node_data:
-                all_data[node_dir] = pd.concat(node_data, ignore_index=True)
-                # break
-
-        # break
-    # print(all_data)
-    # print(all_data['01'].loc[3591])
-    # print(all_data['01'].loc[3592])
-    return all_data
 
 
 def parse_classifications_as_file(csv_classifications,
@@ -94,3 +74,29 @@ def parse_classifications_as_file(csv_classifications,
     df = pd.read_csv(csv_classifications, sep=',')
     df = df.rename(columns=column_mapping)
     return df
+
+
+def parse_classifications_as_dir(dir_path):
+    all_data = {}
+
+    for node_dir in sorted(os.listdir(dir_path)):
+        node_path = os.path.join(dir_path, node_dir)
+        if os.path.isdir(node_path):
+            node_data = []
+            current_offset = 0
+
+            for file in sorted(os.listdir(node_path)):
+                if file.endswith('.BirdNET.results.txt'):
+                    file_path = os.path.join(node_path, file)
+                    df = pd.read_csv(file_path, header=None,
+                                     names=['start', 'end', 'species_latin', 'species_common', 'confidence'],
+                                     sep=',')
+
+                    df['start'] += current_offset
+                    df['end'] += current_offset
+                    current_offset = df['end'].max() + (48000 * 5)
+                    node_data.append(df)
+
+            if node_data:
+                all_data[node_dir] = pd.concat(node_data, ignore_index=True)
+    return all_data

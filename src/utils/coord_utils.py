@@ -3,7 +3,6 @@ import numpy as np
 from pyproj import Transformer, Proj, transform
 
 def convert_wgs84_to_utm(location_data_list, zone_number=None, zone_letter='N'):
-    # Initialize transformer for UTM zone
     transformer = Transformer.from_crs("EPSG:4326", f"EPSG:{32600 + zone_number + (0 if zone_letter >= 'N' else 100)}",
                                        always_xy=True)
 
@@ -13,9 +12,6 @@ def convert_wgs84_to_utm(location_data_list, zone_number=None, zone_letter='N'):
             dev.lat, dev.lon = [round(utm_easting, 2), round(utm_northing, 2)]
         except Exception:
             pass
-
-    print(f"converted locations to UTM{zone_number}{zone_letter}")
-
     return location_data_list
 
 
@@ -37,7 +33,6 @@ def calc_geometric_center_in_Graph(G: nx.Graph, cluster_nodes, weighted=False):
         if weighted:
             # Calculate weighted geometric mean
             node_weight = G.nodes[node]['weight']
-            # print(node_position[0])
             sum_weighted_x += np.log(node_position[0]) * node_weight
             sum_weighted_y += np.log(node_position[1]) * node_weight
             sum_weights += node_weight
