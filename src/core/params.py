@@ -5,10 +5,10 @@ from dataclasses import dataclass, field
 @dataclass
 class Parameters:
     e_delta: float = 0.2
-    e_threshold_meter: float = 700
+    d_max: float = 700
     threshold_R: float= 0.5
     threshold_B: float= 0.1
-    TS_delta: float= 0.7
+    TS_delta: float= 0.2
     threshold_T: float = math.sqrt(70000 / math.pi) * 1.5  # assumption 7ha, based on radios sqrt(7ha / pi). Radius is unrealistic, hence multiply with 1.5, which is about 298.54
 
     def to_string(self, delimiter: str = "-") -> str:

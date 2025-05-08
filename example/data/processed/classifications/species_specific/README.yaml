@@ -1,0 +1,17 @@
+structure:
+  processed:
+  description: "Contains all processed data for the project."
+    classifications:
+      description: "Contains the BirdNET v2.4 results restructured for faster computation and handling."
+      pkl:
+        description: "Classifications per species."
+          Sylvia_atricapilla:
+            - Sylvia_atricapilla.pkl
+      species_specific:
+        description: "Classifications organized in subfolders for each species."
+        Sylvia_atricapilla:
+          - [01..29]
+    locations: []
+      description: "Contains id, location etc. about the deployed devices."
+        - locations.csv
+

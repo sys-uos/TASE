@@ -8,6 +8,8 @@ declare -A formalization_files=(
     ["formalization/voronoi.pdf"]="Figure_3_1.pdf"
     ["formalization/delauny.pdf"]="Figure_3_2.pdf"
     ["formalization/delauny_with_subgrpahs.pdf"]="Figure_3_3.pdf"
+    ["formalization/point_cloud.pdf"]="Figure_5_1.pdf"
+    ["formalization/heat_map.pdf"]="Figure_5_2.pdf"
 )
 
 # Define source directories and their corresponding file renaming patterns
@@ -24,8 +26,8 @@ declare -A src_dirs=(
     ["evaluation/Sylvia_borin"]="Figure_A_6_"
     ["evaluation/Troglodytes_troglodytes"]="Figure_8_"
     ["evaluation/Turdus_philomelos"]="Figure_11_"
-    ["evaluation/Analysis/interference/Phoenicurus_phoenicurus"]="Figure_13_"
-    ["evaluation/Analysis/interference/Turdus_philomelos"]="Figure_13_"
+    ["evaluation/Analysis/interference/Phoenicurus_phoenicurus"]="Figure_13_1"
+    ["evaluation/Analysis/interference/Turdus_philomelos"]="Figure_13_2"
     ["evaluation/Analysis/methodological_errors"]="Figure_14_"
     ["evaluation/Troglodytes_troglodytes_short_timespans"]="Figure_9_"
 )

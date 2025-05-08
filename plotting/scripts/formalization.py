@@ -5,7 +5,7 @@ import networkx as nx
 import numpy as np
 
 from TASE.src.core.params import Parameters
-from TASE.src.core.tase import BirdEstimatorDirected
+from TASE.src.core.tase import CustomizedGraph
 from TASE.plotting.deployment.parameters import get_TASE_ParameterSet
 from TASE.plotting.deployment.utils import deployment_duration
 from TASE.parsing import parse_audiomoth_locations
@@ -14,7 +14,7 @@ from TASE.src.models import Recording_Node
 from TASE.src.utils import convert_wgs84_to_utm
 from TASE.plotting.viewer import WMSMapViewer
 
-def make_plots_for_formalization(spec=Phoenicurs_phoenicurus(), font_size=12):
+def make_plots_for_formalization(spec=Phoenicurs_phoenicurus(), font_size=22):
     # --- Define deployment duration --- #
     deployment_start, deployment_end = deployment_duration()
 
@@ -40,19 +40,19 @@ def make_plots_for_formalization(spec=Phoenicurs_phoenicurus(), font_size=12):
         threshold_R=0.5,
         threshold_B=0.1,
         TS_delta=0.2,
-        e_threshold_meter=100,
+        d_max=100,
         threshold_T=spec.max_root_2_leaf_distance(),
         e_delta=0.2,
     )
 
     # --- Build path to the classification --- #
-    dir_classification = f"./data/20230603/processed/classifications/species_specific/1.5_0/{spec.lat_name.replace(' ', '_')}/"
+    dir_classification = f"./data/20230603/processed/classifications/species_specific/{spec.lat_name.replace(' ', '_')}"
     output_dir = f"./data/20230603/processed/classifications/pkl/{os.path.normpath(dir_classification).split(os.sep)[-1]}"
-    filename = "-".join(os.path.normpath(dir_classification).split(os.sep)[-2:-1]) + ".pkl"
+    filename = spec.lat_name.replace(' ', '_') + ".pkl"
     pkl_file = os.path.join(output_dir, filename)
 
     # --- Build graph and perform tase --- #
-    graph = BirdEstimatorDirected()
+    graph = CustomizedGraph()
     graph.add_nodes_with_coordinates(device_list=location_data_list)
     graph.add_classifications_for_each_node(pkl_file=pkl_file)
     graph.set_weight_to_timestamp(deployment_start+50)
@@ -62,7 +62,7 @@ def make_plots_for_formalization(spec=Phoenicurs_phoenicurus(), font_size=12):
                     14: 0.48, 9: 0.57, 10: 0.6, 29: 0.21}  # Node 1 has weight 5.0, node 3 has weight 10.0
     nx.set_node_attributes(graph.G, node_weights, name='weight')
     graph.delauny(e_delta=params.e_delta)
-    graph.remove_long_edges(threshold_meter=params.e_threshold_meter)
+    graph.remove_long_edges(threshold_meter=params.d_max)
 
     # --- Create the WMSMapViewer instance --- #
     viewer = WMSMapViewer()
@@ -106,7 +106,7 @@ def make_plots_for_formalization(spec=Phoenicurs_phoenicurus(), font_size=12):
         viewer.add_circleset_from_utm(centerset=spec.ground_truth)
         viewer.convert_pointcloudUTM_2_pointcloudPIXEL(centroids, timestamps)
         viewer.add_node_locations(node_locations, zone_number=32, zone_letter='N')
-        viewer.display_with_pointcloud(deployment_start, deployment_end,
+        viewer.display_with_pointcloud(deployment_start, deployment_end, font_size=font_size,
                                        figpath=os.path.join(odir, f"point_cloud.pdf"))
-        viewer.display_with_heatmap(font_size=22, figpath=os.path.join(odir, f"heat_map.pdf"), bw_method=spec.bw,
+        viewer.display_with_heatmap_without_gt(font_size=font_size, figpath=os.path.join(odir, f"heat_map.pdf"), bw_method=spec.bw,
                                     heatmap_vmax=spec.heatmap_vmax)

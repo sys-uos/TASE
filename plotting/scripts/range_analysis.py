@@ -205,8 +205,8 @@ def evaluate_range_recordings():
 
         sns.boxplot(x='sensitivity', y='std_dev', hue='species', data=std_per_group, palette=palette)
 
-        plt.xlabel("classifier's sensitivity", fontsize=font_size)
-        plt.ylabel("standard deviation of classifier's confidence", fontsize=font_size)
+        plt.xlabel("sensitivity", fontsize=font_size)
+        plt.ylabel("standard deviation", fontsize=font_size)
         # plt.title('Boxplots of Standard Deviation of Confidence by Species and Sensitivity', fontsize=font_size)
 
         # Get handles and labels for the legend
@@ -216,8 +216,10 @@ def evaluate_range_recordings():
         order = [4, 0, 2, 1, 3]
 
         # Add the legend to the plot in the specified order
-        plt.legend([handles[idx] for idx in order], [labels[idx] for idx in order], fontsize=font_size, title='Species',
-                   title_fontsize=font_size)
+        plt.legend([handles[idx] for idx in order], [labels[idx] for idx in order], fontsize=font_size-10)
+
+        plt.xticks(fontsize=font_size)
+        plt.yticks(fontsize=font_size)
 
         plt.grid(True)
         plt.tight_layout()
@@ -235,7 +237,7 @@ def evaluate_range_recordings():
     os.makedirs(dirpath, exist_ok=True)
 
     # --- Make Plot and calculate correlation --- #
-    plot_std_dev_boxplots(df, font_size=16, filename=f"{dirpath}recording_range_variation.pdf")
+    plot_std_dev_boxplots(df, font_size=30, filename=f"{dirpath}recording_range_variation.pdf")
     print_correlation()
 
 

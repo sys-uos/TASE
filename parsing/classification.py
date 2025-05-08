@@ -77,6 +77,40 @@ def parse_classifications_as_file(csv_classifications,
 
 
 def parse_classifications_as_dir(dir_path):
+    """
+    Parse BirdNET classification results from a directory tree.
+
+    Parameters
+    ----------
+    dir_path : str
+        Path to the root directory containing subdirectories for each node.
+        Each node directory should contain one or more `.BirdNET.results.txt`
+        files with no header, comma-separated columns:
+            0: start (int)
+            1: end (int)
+            2: species_latin (str)
+            3: species_common (str)
+            4: confidence (float)
+
+    Returns
+    -------
+    dict[str, pandas.DataFrame]
+        A dictionary mapping node directory names to DataFrames of concatenated
+        classification results. Each DataFrame has columns:
+          - 'start': start time in samples, adjusted by offsets
+          - 'end':   end time in samples, adjusted by offsets
+          - 'species_latin': scientific name of detected species
+          - 'species_common': common name of detected species
+          - 'confidence': detection confidence score
+
+   Notes
+    -----
+    - A 5-second gap between consecutive recordings is assumed, at a sample rate
+      of 48 000 Hz (i.e. 5 * 48000 samples).
+    - After reading each file, `current_offset` is increased by the maximum
+      'end' sample plus the fixed gap to ensure time continuity across files.
+
+    """
     all_data = {}
 
     for node_dir in sorted(os.listdir(dir_path)):
@@ -94,9 +128,8 @@ def parse_classifications_as_dir(dir_path):
 
                     df['start'] += current_offset
                     df['end'] += current_offset
-                    current_offset = df['end'].max() + (48000 * 5)
+                    current_offset = df['end'].max() + (48000 * 5)  # latter term because of the recording gap between the audios for saving the audio
                     node_data.append(df)
-
             if node_data:
                 all_data[node_dir] = pd.concat(node_data, ignore_index=True)
     return all_data

@@ -2,7 +2,7 @@ import os
 import pickle
 
 from TASE.src.core.localization import calculate_weighted_centroid_from_nxgraph
-from TASE.src.core.tase import BirdEstimatorDirected
+from TASE.src.core.tase import CustomizedGraph
 from TASE.plotting.deployment.parameters import get_TASE_ParameterSet
 from TASE.plotting.deployment.utils import deployment_duration
 from TASE.parsing import parse_audiomoth_locations
@@ -38,13 +38,13 @@ def apply_tase_for_all_20230603(spec=Phoenicurs_phoenicurus(), font_size=12):
 
             territorial_subgraphs_all = {}  # key: epoch-timestamp, value: territorial subgraphs
             for ts in range(int(deployment_start) + 0, int(deployment_end)-2, 1):  # int(deployment_end)-2 because the last sample starts 1 seconds prior recording end
-                graph = BirdEstimatorDirected()
+                graph = CustomizedGraph()
                 graph.add_nodes_with_coordinates(device_list=location_data_list)
                 graph.add_classifications_for_each_node(pkl_file=os.path.join(pkl_dir, filename))
                 graph.set_weight_to_timestamp(ts)
                 graph.init_graph(directedGraph=True)
                 graph.delauny(e_delta=params.e_delta)
-                graph.remove_long_edges(threshold_meter=params.threshold_T)
+                graph.remove_long_edges(d_max=params.d_max)
                 territorial_subgraphs = graph.tase(threshold_R=params.threshold_R,
                                                    threshold_B=params.threshold_B,
                                                    threshold_T=params.threshold_T,

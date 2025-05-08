@@ -1,5 +1,3 @@
-import math
-
 from TASE.src.core.species import Species
 
 
@@ -13,13 +11,14 @@ class Phoenicurs_phoenicurus(Species):
 
         self.mean_territory_size = 34482.7586206897 # in meter²
 
+        # deduced from field monitorings
         self.ground_truth = [[52.00894502,  8.05572935, 200, 'red'],  # unten rechts
                              [52.00981674,  8.05338621, 200, 'red'],  # unten links
                              [52.01072807,  8.05489898, 200 , 'red'],  # mitte
                              [52.01161956 , 8.05601478, 200 , 'red'],  # oben rechts
                              [52.01171201 , 8.05390423, 200, 'orange']]  # oben links
         self.bw = 0.15
-        self.heatmap_vmax = 0.00002
+        self.heatmap_vmax = 0.00003
 
 class Sylvia_borin(Species):
     def __init__(self):
@@ -30,6 +29,7 @@ class Sylvia_borin(Species):
 
         self.mean_territory_size = 25000 # in meter²
 
+        # deduced from field monitorings
         self.ground_truth = [[52.00958088, 8.05551784, 200, 'red'],  # mitte rechts
                              [52.00958088, 8.05351784, 200, 'orange'],  # mitte links
                              [52.00965825, 8.05753827, 200, 'gray'], # outside rechts
@@ -47,14 +47,15 @@ class Sylvia_atricapilla(Species):
 
         self.mean_territory_size = 15151.5151515152 # in meter²
 
-        self.ground_truth = [[52.011567, 8.054888, 175, 'red'], # oben mitte
-                             [52.010761, 8.055038, 175, 'red'],  # mitte am teich
-                             [52.010352, 8.053915, 175, 'red'], # links
-                             [52.009387, 8.054695, 175, 'red'], # mitte an der hecke
-                             [52.010068, 8.05801, 175, 'gray'], # outside, an der straße
-                             [52.008767, 8.057111, 175, 'gray'] ]  # unten rechts
+        # deduced from field monitorings
+        self.ground_truth = [[52.011567, 8.054888, 175, 'red'], # top mid
+                             [52.010761, 8.055038, 175, 'red'],  # close to the pond
+                             [52.010352, 8.053915, 175, 'red'], # left
+                             [52.009387, 8.054695, 175, 'red'], # mid, at the hedge
+                             [52.010068, 8.05801, 175, 'gray'], # outside, at the road
+                             [52.008767, 8.057111, 175, 'gray'] ]  # bottom right
 
-        self.heatmap_vmax = 0.00002  # used in the evaluation
+        self.heatmap_vmax = 0.00002  # used in the heatmap
         self.bw = 0.15
 
 class Troglodytes_troglodytes(Species):
@@ -66,12 +67,13 @@ class Troglodytes_troglodytes(Species):
 
         self.mean_territory_size = 21276.5957446808 # in meter²
 
+        # deduced from field monitorings
         self.ground_truth = [ [52.01111721, 8.05425022,200, 'red'],  # oben links
                               [52.01114410, 8.05565000,200, 'red'],  # oben rechts
                               # [52.01132287, 8.05475594, 150, 'red'],  # oben mitte
                               [52.00900776, 8.05684889,200, 'gray'],  # unten rechts
                               [52.00939079, 8.05308580,200, 'gray']]  # outside unten links
-        self.heatmap_vmax = 0.00005
+        self.heatmap_vmax = 0.00003
         self.bw = 0.15
 
 
@@ -83,6 +85,7 @@ class Phylloscopus_collybita(Species):
 
         self.mean_territory_size = 15625 # in meter²
 
+        # deduced from field monitorings
         self.ground_truth = [[52.011295700, 8.05428906, 200, 'red'], # oben links
                              [52.010969570, 8.05588906, 200, 'red'],  # oben rechts
                              [52.00999618 , 8.05379391, 200, 'red'],  # unten links
@@ -100,11 +103,12 @@ class Muscicapa_striata(Species):
 
         self.mean_territory_size = 42553.1914893617 # in meter²
 
+        # deduced from field monitorings
         self.ground_truth = [[52.011083, 8.054212, 200, 'red'],  # oben links
                              [52.011098, 8.055382, 200, 'red'],  #  mitte rechts
                              [52.008833, 8.056052, 200, 'orange']]  # unten links
         self.bw = 0.15
-        self.heatmap_vmax = 0.00002
+        self.heatmap_vmax = 0.00004
 
 
 class Erithacus_rubecula(Species):
@@ -116,6 +120,7 @@ class Erithacus_rubecula(Species):
 
         self.mean_territory_size = 16393.4426229508  # in meter²
 
+        # deduced from field monitorings
         self.ground_truth = [ [52.00894502 , 8.05614352,175, 'red'],  # unten rechts
                               [52.01056014, 8.05398703,175, 'red'],  # unten links
                               [52.01093939, 8.05422306,175, 'red'],  # oben links
@@ -126,7 +131,7 @@ class Erithacus_rubecula(Species):
                               [52.008833, 8.053097, 175, 'gray'],   # outside, links unten
                               [52.007862, 8.055661, 175, 'gray']] # outside, rechts unten
         self.bw = 0.15
-        self.heatmap_vmax = 0.00002
+        self.heatmap_vmax = 0.00003
 
 
 class Certhia_brachydactyla(Species):
@@ -138,6 +143,7 @@ class Certhia_brachydactyla(Species):
 
         self.mean_territory_size = 55555.5555555556  # in meter²
 
+        # deduced from field monitorings
         self.ground_truth = [[52.00884596, 8.05617034, 200, 'red'],  # unten rechts
                              [52.01011391, 8.05377245, 200, 'red'],  # links unten
                              [52.01105495, 8.05412114, 200, 'red'],  # oben links
@@ -155,6 +161,7 @@ class Fringilla_coelebs(Species):
 
         self.mean_territory_size = 9478.67298578199  # in meter²
 
+        # deduced from field monitorings
         self.ground_truth = [[52.010986, 8.053837, 200.0, 'red'],  # oben links
                              [52.011286, 8.055837, 200.0, 'red'],  # oben rechts
                              [52.00887238, 8.05587700, 200.0, 'red'],  # unten rechts
@@ -175,7 +182,7 @@ class Turdus_philomelos(Species):
 
         self.mean_territory_size = 20202.0202020202  # in meter²
 
-        self.ground_truth = [[52.01031486, 8.05474877, 500, 'red'] ]
+        self.ground_truth = [[52.01031486, 8.05474877, 500, 'red']]  # deduced from field monitorings
         self.bw = 0.15
         self.heatmap_vmax = 0.00002
 
@@ -189,9 +196,9 @@ class Anthus_trivialis(Species):
 
         self.mean_territory_size = 25316.4556962025  # in meter²
 
-        self.ground_truth = [[52.00920258, 8.05560708, 225, 'red']]
+        self.ground_truth = [[52.00920258, 8.05560708, 225, 'red']]  # deduced from field monitorings
         self.bw = 0.15
-        self.heatmap_vmax = 0.00002
+        self.heatmap_vmax = 0.00003
 
 
 

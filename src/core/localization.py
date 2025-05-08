@@ -1,6 +1,7 @@
+from typing import Tuple
 import networkx as nx
 
-def calculate_weighted_centroid_from_nxgraph(graph: nx.DiGraph):
+def calculate_weighted_centroid_from_nxgraph(graph: nx.DiGraph) -> Tuple[float, float]:
     """
     Calculates the weighted centroid of a directed graph based on node weights and positions.
 

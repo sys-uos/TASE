@@ -10,7 +10,7 @@ import pandas as pd
 from matplotlib.ticker import FormatStrFormatter
 
 from TASE.src.core.params import Parameters
-from TASE.src.core.tase import BirdEstimatorDirected
+from TASE.src.core.tase import CustomizedGraph
 from TASE.plotting.deployment.parameters import get_TASE_ParameterSet
 from TASE.plotting.deployment.species import evaluation_specs, Phoenicurs_phoenicurus, Turdus_philomelos, Troglodytes_troglodytes
 from TASE.plotting.deployment.utils import deployment_node_locations, deployment_duration
@@ -24,10 +24,10 @@ def make_plots_of_species_heatmaps():
     # --- Get Node Locations --- #
     node_locations = deployment_node_locations()
 
-    for spec in evaluation_specs()[0:]:
+    for spec in evaluation_specs()[7:8]:
         fn_spec = spec.lat_name.replace(" ", "_")
 
-        for params in get_TASE_ParameterSet(spec):
+        for params in get_TASE_ParameterSet(spec)[3:]:
             params_string = params.to_string(delimiter='-')
             # path = f"./data/20230603/processed/tase_correct_config/{fn_spec}/{params_string}.pkl"
             path = f"./data/20230603/processed/tase/{fn_spec}/{params_string}.pkl"
@@ -53,18 +53,19 @@ def make_plots_of_species_heatmaps():
                 viewer.add_circleset_from_utm(centerset=spec.ground_truth)
                 viewer.convert_pointcloudUTM_2_pointcloudPIXEL(centroids, timestamps)
                 viewer.add_node_locations(node_locations, zone_number=32, zone_letter='N')
+                # deployment_start, deployment_end = deployment_duration()
                 # viewer.display_with_pointcloud(deployment_start, deployment_end,
                 #                                figpath=os.path.join(odir, f"{params_string}.pdf"))
-                viewer.display_with_heatmap(font_size=22, figpath=figpath, bw_method=spec.bw,
+                viewer.display_with_heatmap(font_size=30, figpath=figpath, bw_method=spec.bw,
                                             heatmap_vmax=spec.heatmap_vmax)
 
 
 def make_plots_about_impact_of_interference():
 
-    def plot_methodological_impact_of_interference(spec, figpath=None, fontsize=20):
-        dir_classification = f"./data/20230603/processed/classifications/species_specific/1.5_0/{spec.lat_name.replace(' ', '_')}/"
+    def plot_methodological_impact_of_interference(spec, figpath=None, fontsize=30):
+        dir_classification = f"./data/20230603/processed/classifications/species_specific/{spec.lat_name.replace(' ', '_')}"
         pkl_dir = f"./data/20230603/processed/classifications/pkl/{os.path.normpath(dir_classification).split(os.sep)[-1]}"
-        filename = "-".join(os.path.normpath(dir_classification).split(os.sep)[-2:-1]) + ".pkl"
+        filename = spec.lat_name.replace(' ', '_') + ".pkl"
 
         # --- Define deployment duration --- #
         deployment_start, deployment_end = deployment_duration()
@@ -74,7 +75,7 @@ def make_plots_about_impact_of_interference():
         node_locations: [Recording_Node] = parse_audiomoth_locations(csv_node_locations)
         location_data_list = convert_wgs84_to_utm(node_locations, zone_number=32, zone_letter='N')
 
-        graph = BirdEstimatorDirected()
+        graph = CustomizedGraph()
         graph.add_nodes_with_coordinates(device_list=location_data_list)
         graph.add_classifications_for_each_node(pkl_file=os.path.join(pkl_dir, filename))
         buckets = {}
@@ -97,8 +98,8 @@ def make_plots_about_impact_of_interference():
         confidence_values = []
 
         for key, values in buckets.items():
-            from_ = datetime.fromtimestamp(deployment_start + key * chunk_size, pytz.timezone('Europe/Berlin')).strftime('%H:%M:%S')
-            to_ = datetime.fromtimestamp(deployment_start + (key+1) * chunk_size, pytz.timezone('Europe/Berlin')).strftime('%H:%M:%S')
+            from_ = datetime.fromtimestamp(deployment_start + key * chunk_size, pytz.timezone('Europe/Berlin')).strftime('%H:%M')
+            to_ = datetime.fromtimestamp(deployment_start + (key+1) * chunk_size, pytz.timezone('Europe/Berlin')).strftime('%H:%M')
             time_label = f"{from_} to {to_}"
             time_intervals.extend([time_label] * len(values))
             confidence_values.extend(buckets[key])
@@ -124,9 +125,9 @@ def make_plots_about_impact_of_interference():
         plt.grid(True, axis="y", linestyle="--", alpha=0.5)
 
         plt.xlabel("Time Interval", fontsize=fontsize)
-        plt.ylabel("Confidence", fontsize=fontsize)
+        plt.ylabel("Confidence Score", fontsize=fontsize)
         plt.ylim([0.1, 1])
-        plt.legend(loc='upper right', fontsize=fontsize, title_fontsize=fontsize)
+        plt.legend(loc='upper right', fontsize=fontsize, title_fontsize=fontsize-7)
         plt.tight_layout()
 
         if figpath:
@@ -144,7 +145,7 @@ def make_plots_about_impact_of_interference():
         plot_methodological_impact_of_interference(spec, figpath=figpath)
         print(f"Saved to {figpath}")
 
-def make_plots_about_methodological_challenges(spec=Phoenicurs_phoenicurus(), font_size=20):
+def make_plots_about_methodological_challenges(spec=Phoenicurs_phoenicurus(), font_size=27):
     # --- Define deployment duration --- #
     deployment_start, deployment_end = deployment_duration()
 
@@ -158,15 +159,15 @@ def make_plots_about_methodological_challenges(spec=Phoenicurs_phoenicurus(), fo
         threshold_R=0.5,
         threshold_B=0.1,
         TS_delta=0.2,
-        e_threshold_meter=100,
+        d_max=100,
         threshold_T=spec.max_root_2_leaf_distance(),
         e_delta=0.2,
     )
 
     # --- Build path to the classification --- #
-    dir_classification = f"./data/20230603/processed/classifications/species_specific/1.5_0/{spec.lat_name.replace(' ', '_')}/"
+    dir_classification = f"./data/20230603/processed/classifications/species_specific/{spec.lat_name.replace(' ', '_')}"
     output_dir = f"./data/20230603/processed/classifications/pkl/{os.path.normpath(dir_classification).split(os.sep)[-1]}"
-    filename = "-".join(os.path.normpath(dir_classification).split(os.sep)[-2:-1]) + ".pkl"
+    filename = spec.lat_name.replace(' ', '_') + ".pkl"
     pkl_file = os.path.join(output_dir, filename)
 
     for time_interval in [5, 41, 2268, 2562, 2621]:
@@ -178,13 +179,13 @@ def make_plots_about_methodological_challenges(spec=Phoenicurs_phoenicurus(), fo
 
 
         # --- Build graph and perform tase --- #
-        graph = BirdEstimatorDirected()
+        graph = CustomizedGraph()
         graph.add_nodes_with_coordinates(device_list=location_data_list)
         graph.add_classifications_for_each_node(pkl_file=pkl_file)
         graph.set_weight_to_timestamp(deployment_start + time_interval)
         graph.init_graph(directedGraph=True)
         graph.delauny(e_delta=params.e_delta)
-        graph.remove_long_edges(threshold_meter=params.e_threshold_meter)
+        graph.remove_long_edges(threshold_meter=params.d_max)
         territorial_subgraphs = graph.tase(threshold_R=params.threshold_R,
                                            threshold_B=params.threshold_B,
                                            threshold_T=params.threshold_T,
@@ -212,7 +213,7 @@ def make_plots_about_impact_of_timeintervals():
         threshold_R=0.5,
         threshold_B=0.1,
         TS_delta=0.2,
-        e_threshold_meter=100,
+        d_max=100,
         threshold_T=spec.max_root_2_leaf_distance(),
         e_delta=0.2,
     )
@@ -267,7 +268,7 @@ def make_plots_about_impact_of_timeintervals():
         viewer.add_circleset_from_utm(centerset=spec.ground_truth)
         viewer.convert_pointcloudUTM_2_pointcloudPIXEL(centroids[i], timestamps[i])
         viewer.add_node_locations(node_locations, zone_number=32, zone_letter='N')
-        viewer.display_with_heatmap(font_size=22, figpath=figpath, bw_method=spec.bw,
+        viewer.display_with_heatmap(font_size=30, figpath=figpath, bw_method=spec.bw,
                                     heatmap_vmax=spec.heatmap_vmax)
 
 

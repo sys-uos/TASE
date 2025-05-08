@@ -1,7 +1,7 @@
 import os
 
 from TASE.src.core.params import Parameters
-from TASE.src.core.tase import BirdEstimatorDirected
+from TASE.src.core.tase import CustomizedGraph
 from TASE.plotting.deployment.utils import deployment_duration
 from TASE.parsing import parse_audiomoth_locations
 from TASE.plotting.deployment.species import Phoenicurs_phoenicurus
@@ -10,7 +10,7 @@ from TASE.src.utils import convert_wgs84_to_utm
 from TASE.plotting.viewer import WMSMapViewer
 
 
-def make_plots_for_problem_issue(spec=Phoenicurs_phoenicurus(), font_size=25):
+def make_plots_for_problem_issue(spec=Phoenicurs_phoenicurus(), font_size=30):
     # --- Define deployment duration --- #
     deployment_start, deployment_end = deployment_duration()
 
@@ -29,9 +29,9 @@ def make_plots_for_problem_issue(spec=Phoenicurs_phoenicurus(), font_size=25):
     )
 
     # --- Build path to the classification --- #
-    dir_classification = f"./data/20230603/processed/classifications/species_specific/1.5_0/{spec.lat_name.replace(' ', '_')}/"
+    dir_classification = f"./data/20230603/processed/classifications/species_specific/{spec.lat_name.replace(' ', '_')}"
     output_dir = f"./data/20230603/processed/classifications/pkl/{os.path.normpath(dir_classification).split(os.sep)[-1]}"
-    filename = "-".join(os.path.normpath(dir_classification).split(os.sep)[-2:-1]) + ".pkl"
+    filename = spec.lat_name.replace(' ', '_') + ".pkl"
     pkl_file = os.path.join(output_dir, filename)
 
     # --- Define output directory --- #
@@ -40,7 +40,7 @@ def make_plots_for_problem_issue(spec=Phoenicurs_phoenicurus(), font_size=25):
 
     for ts in range(int(deployment_start+900), int(deployment_start+909)):  # [5] # range(tuple[0], tuple[1]):  #range(30, 100, 1):
         print("CLASSIFICATION_TIME_INTERVAL", ts)
-        graph = BirdEstimatorDirected()
+        graph = CustomizedGraph()
         graph.add_nodes_with_coordinates(device_list=location_data_list)
         graph.add_classifications_for_each_node(pkl_file=pkl_file)
         graph.set_weight_to_timestamp(ts)

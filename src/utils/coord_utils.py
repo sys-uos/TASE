@@ -10,8 +10,12 @@ def convert_wgs84_to_utm(location_data_list, zone_number=None, zone_letter='N'):
         try:
             utm_easting, utm_northing = transformer.transform(dev.lon, dev.lat)
             dev.lat, dev.lon = [round(utm_easting, 2), round(utm_northing, 2)]
-        except Exception:
-            pass
+        except Exception as e:
+            msg = (
+                f"Error transforming coordinates for device {getattr(dev, 'id', '(unknown)')}: "
+                f"input lon={dev.lon}, lat={dev.lat}; transformer said: {e}"
+            )
+            raise RuntimeError(msg) from e
     return location_data_list
 
 

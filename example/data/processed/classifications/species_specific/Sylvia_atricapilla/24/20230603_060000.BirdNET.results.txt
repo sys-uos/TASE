@@ -1,5 +1,4 @@
 0,144000,Sylvia atricapilla,Eurasian Blackcap,0.1023
-0,144000,Sylvia atricapilla,Eurasian Blackcap,0.1023
 48000,192000,Sylvia atricapilla,Eurasian Blackcap,0.0790
 96000,240000,Sylvia atricapilla,Eurasian Blackcap,0.1247
 144000,288000,Sylvia atricapilla,Eurasian Blackcap,0.0202
