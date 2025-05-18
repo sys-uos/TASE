@@ -55,7 +55,7 @@ class Sylvia_atricapilla(Species):
                              [52.010068, 8.05801, 175, 'gray'], # outside, at the road
                              [52.008767, 8.057111, 175, 'gray'] ]  # bottom right
 
-        self.heatmap_vmax = 0.00002  # used in the heatmap
+        self.heatmap_vmax = 0.00003  # used in the heatmap
         self.bw = 0.15
 
 class Troglodytes_troglodytes(Species):

@@ -117,19 +117,19 @@ def evaluation_of_deployment_20230603():
     # make_plots_for_problem_issue()
     # make_plots_for_formalization()
     # make_plots_for_range_analysis()
-    make_plots_of_species_heatmaps()
+    # make_plots_of_species_heatmaps()
     # make_plots_about_impact_of_timeintervals()
     # make_plots_about_impact_of_interference()
-    # make_plots_about_methodological_challenges()
+    make_plots_about_methodological_challenges()
     exit(0)
 
 
 if __name__ == "__main__":
     # To reproduce the results run the following code:
-    # evaluation_of_deployment_20230603()
+    evaluation_of_deployment_20230603()
 
     # To run a minimal working example
-    main_minimal_usage_example()
+    # main_minimal_usage_example()
 
     # TODO: COPY Audio-Data into correct directory
     # TODO: Ground Truth from GIS?

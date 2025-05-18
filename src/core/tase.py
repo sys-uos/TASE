@@ -201,7 +201,7 @@ class CustomizedGraph:
             """Return True if the path’s border weight, center-to-border distance, and weight monotonicity meet thresholds."""
             # 1. Border‐node weight check
             border_node = path[-1]
-            if G.nodes[border_node]['weight'] < self.threshold_B:
+            if round(G.nodes[border_node]['weight'],3) < self.threshold_B:
                 return False
 
             # 2. Spatial constraint: center‐to‐border distance

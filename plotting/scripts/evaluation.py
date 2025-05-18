@@ -21,13 +21,13 @@ from TASE.plotting.viewer import WMSMapViewer
 
 
 def make_plots_of_species_heatmaps():
-    # --- Get Node Locations --- #
+    # --- Get Node Locations --- #2b
     node_locations = deployment_node_locations()
 
-    for spec in evaluation_specs()[7:8]:
+    for spec in evaluation_specs():
         fn_spec = spec.lat_name.replace(" ", "_")
 
-        for params in get_TASE_ParameterSet(spec)[3:]:
+        for params in get_TASE_ParameterSet(spec):
             params_string = params.to_string(delimiter='-')
             # path = f"./data/20230603/processed/tase_correct_config/{fn_spec}/{params_string}.pkl"
             path = f"./data/20230603/processed/tase/{fn_spec}/{params_string}.pkl"
@@ -185,7 +185,7 @@ def make_plots_about_methodological_challenges(spec=Phoenicurs_phoenicurus(), fo
         graph.set_weight_to_timestamp(deployment_start + time_interval)
         graph.init_graph(directedGraph=True)
         graph.delauny(e_delta=params.e_delta)
-        graph.remove_long_edges(threshold_meter=params.d_max)
+        graph.remove_long_edges(d_max=params.d_max)
         territorial_subgraphs = graph.tase(threshold_R=params.threshold_R,
                                            threshold_B=params.threshold_B,
                                            threshold_T=params.threshold_T,

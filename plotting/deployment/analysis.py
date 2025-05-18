@@ -26,9 +26,9 @@ def apply_tase_for_all_20230603(spec=Phoenicurs_phoenicurus(), font_size=12):
 
     # --- Apply TASE with different set of parameters --- #
     for spec in evaluation_specs():
-        dir_classification = f"./data/20230603/processed/classifications/species_specific/1.5_0/{spec.lat_name.replace(' ', '_')}/"
-        pkl_dir = f"./data/20230603/processed/classifications/pkl/{os.path.normpath(dir_classification).split(os.sep)[-1]}"
-        filename = "-".join(os.path.normpath(dir_classification).split(os.sep)[-2:-1]) + ".pkl"
+        dir_classification = f"./data/20230603/processed/classifications/species_specific/{spec.lat_name.replace(' ', '_')}"
+        pkl_dir = f"./data/20230603/processed/classifications/pkl/{spec.lat_name.replace(' ', '_')}"
+        filename = "-".join(os.path.normpath(dir_classification).split(os.sep)[-1:]) + ".pkl"
 
         for params in get_TASE_ParameterSet(spec):  # --- Define Parameters of TASE --- #
             output_dir = f"./data/20230603/processed/tase/{os.path.normpath(dir_classification).split(os.sep)[-1]}/"
