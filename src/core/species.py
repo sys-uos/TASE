@@ -7,8 +7,8 @@ class Species:
         self.eng_name = ""
 
         self.mean_territory_size = 20000 # default, in m²
-        self.__max_root_2_leaf_distance = 1.0 * math.sqrt((self.mean_territory_size) / math.pi)
+        self.__max_root_2_leaf_distance = 1.5 * math.sqrt((self.mean_territory_size) / math.pi)
 
     def max_root_2_leaf_distance(self):
-        self.__max_root_2_leaf_distance = 1.0 * math.sqrt((self.mean_territory_size) / math.pi)
+        self.__max_root_2_leaf_distance = 1.5 * math.sqrt((self.mean_territory_size) / math.pi)
         return self.__max_root_2_leaf_distance

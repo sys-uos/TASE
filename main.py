@@ -2,24 +2,18 @@ import os.path
 import pytz
 import datetime
 
-from TASE.plotting.deployment.analysis import apply_tase_for_all_20230603
-from TASE.plotting.deployment.parsing import parse_data_from_20230603, check_and_fill_missing_entries, \
+from TASE.plotting.deployment.parsing import check_and_fill_missing_entries, \
     save_classification_data
-from TASE.plotting.deployment.species import Phoenicurs_phoenicurus, Sylvia_atricapilla
-from TASE.plotting.scripts.evaluation import make_plots_of_species_heatmaps, make_plots_about_impact_of_interference, \
-    make_plots_about_methodological_challenges, make_plots_about_impact_of_timeintervals
-from TASE.plotting.scripts.formalization import make_plots_for_formalization
-from TASE.plotting.scripts.problem_issue import make_plots_for_problem_issue
-from TASE.plotting.scripts.range_analysis import make_plots_for_range_analysis
+from TASE.plotting.deployment.species import Sylvia_atricapilla
 from TASE.src.core.localization import calculate_weighted_centroid_from_nxgraph
 from TASE.src.core.params import Parameters
 from TASE.src.core.tase import CustomizedGraph
 from TASE.src.utils.tase_utils import extract_locations
-from parsing.classification import parse_classifications_as_dir, \
+from TASE.parsing.classification import parse_classifications_as_dir, \
     add_date_to_classification_dataframe
-from parsing.location import parse_audiomoth_locations
-from src.models import Recording_Node
-from src.utils import convert_wgs84_to_utm
+from TASE.parsing.location import parse_audiomoth_locations
+from TASE.src.models import Recording_Node
+from TASE.src.utils import convert_wgs84_to_utm
 from TASE.viewer.WmsVisualizer import WMSMapViewer
 
 
@@ -27,8 +21,8 @@ def main_minimal_usage_example():
     #  --- This minimal working example uses a subset of data from a real-world deployment from the publication. --- #
 
     # 0. Define path to classification data directory and node locations CSV file
-    dir_classification = "./example/data/processed/classifications/species_specific/Sylvia_atricapilla/"
-    csv_node_locations = "./example/data/processed/locations/locations.csv"
+    dir_classification = "./TASE/example/data/processed/classifications/species_specific/Sylvia_atricapilla/"
+    csv_node_locations = "./TASE/example/data/processed/locations/locations.csv"
 
     # 1. Define species accordint to /src/core/species.py
     spec = Sylvia_atricapilla()
@@ -47,7 +41,7 @@ def main_minimal_usage_example():
 
     # 4. Parse Classifier Results and time in classification file
     # Note: memory consumption can get quite high for many nodes, so for each node a pkl is saved to disc
-    out_pkl_file = os.path.join("./example/data/processed/classifications/pkl", spec.lat_name + ".pkl")
+    out_pkl_file = os.path.join("./TASE/example/data/processed/classifications/pkl", spec.lat_name + ".pkl")
     if not os.path.exists(out_pkl_file):
         dict_devid_df = parse_classifications_as_dir(dir_path=dir_classification)  # key: devid, value: dataframe
         dict_devid_df = add_date_to_classification_dataframe(dict_devid_df, deployment_start)
@@ -88,6 +82,8 @@ def main_minimal_usage_example():
             territorial_subgraphs[root]['location'] = calculate_weighted_centroid_from_nxgraph(territorial_subgraphs[root]['TS'])
         territorial_subgraphs_all[ts] = territorial_subgraphs
 
+    print("Visualize results using WMS-Service...")
+
     # 7. Visualize the results
     dict_ts_centroids = extract_locations(territorial_subgraphs_all)  # for visualization, resulting in key: ts, value: centroid
 
@@ -98,43 +94,17 @@ def main_minimal_usage_example():
     viewer.add_circleset_from_utm(centerset=spec.ground_truth)
     viewer.add_and_convert_pointcloudUTM_2_pointcloudPIXEL(dict_ts_centroids, zone_number=32, zone_letter='N')
     viewer.add_node_locations(node_locations_utm, zone_number=32, zone_letter='N')
-    # viewer.display_with_pointcloud(point_size=50, font_size=16, figpath="./example/example_pointcloud.pdf")
-    viewer.display_with_heatmap_and_groundtruth(font_size=30, bw_method=spec.bw, heatmap_vmax=spec.heatmap_vmax,
-                                                figpath="./example/example_heatmap.pdf", alpha=0.5)
+    viewer.display_with_pointcloud(point_size=20,font_size=27,alpha=0.5, figpath="./TASE/example/example_pointcloud.png")
+    viewer.display_with_heatmap_and_groundtruth(font_size=25, bw_method=spec.bw, heatmap_vmax=spec.heatmap_vmax,
+                                                figpath="./TASE/example/example_heatmap.png", alpha=0.5)
+    print("Heatmap saved at: ./TASE/example/example_heatmap.pdf")
     print("Minimal Example ended successfully!")
 
 
-def evaluation_of_deployment_20230603():
-    # --- Parse data from the deployment --- #
-    # parse_data_from_20230603()
-    # exit(0)
-
-    # --- Apply TASE on the data --- #
-    # apply_tase_for_all_20230603()
-    # exit(0)
-
-    # --- Make plotting for the paper --- #
-    # make_plots_for_problem_issue()
-    # make_plots_for_formalization()
-    # make_plots_for_range_analysis()
-    # make_plots_of_species_heatmaps()
-    # make_plots_about_impact_of_timeintervals()
-    # make_plots_about_impact_of_interference()
-    make_plots_about_methodological_challenges()
-    exit(0)
-
-
 if __name__ == "__main__":
-    # To reproduce the results run the following code:
-    evaluation_of_deployment_20230603()
-
     # To run a minimal working example
-    # main_minimal_usage_example()
+    main_minimal_usage_example()
 
-    # TODO: COPY Audio-Data into correct directory
-    # TODO: Ground Truth from GIS?
-    # TODO: COPY Range Recordings
-    # Start with letter to Editor and Reviewer
+    # To reproduce the results run the following code:
+    # evaluation_of_deployment_20230603()
 
-    # import ebcc
-    # ebcc.main()

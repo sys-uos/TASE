@@ -8,6 +8,10 @@ import os
 import pickle
 import pandas as pd
 
+###########################################################################
+########### Contains parsing code customized for the deployment ###########
+###########################################################################
+
 def parse_classification_data(spec, deployment_start, deployment_end):
     """
     Parses classification data for a given species, adds timestamps, and ensures missing start/end data is filled.

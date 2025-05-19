@@ -1,16 +1,12 @@
 import datetime
 import os
 
-import numpy as np
 from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.ticker import ScalarFormatter
 from owslib.wms import WebMapService
-import matplotlib.pyplot as plt
 from PIL import Image
 import io
-from pyproj import Proj, transform, Transformer
-from mpl_toolkits.axes_grid1 import make_axes_locatable
-import matplotlib.patches as mpatches
+from pyproj import Proj, Transformer
 from scipy.stats import gaussian_kde
 import matplotlib.pyplot as plt
 import numpy as np
@@ -19,6 +15,10 @@ from matplotlib.colors import Normalize
 from matplotlib.cm import ScalarMappable
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
+
+from matplotlib import rc
+rc('font', **{'family': 'serif', 'serif': ['Computer Modern']})
+rc('text', usetex=True)
 
 class WMSMapViewer:
 
@@ -131,7 +131,7 @@ class WMSMapViewer:
         self.__fetch_map()
 
 
-    def __fetch_map(self, save_path="./wms_map"):
+    def __fetch_map(self, save_path="./TASE/map.wms"):
         """
         Fetches a map image from the WMS service and saves it to the specified location.
         If the map image already exists at the location, it will not be fetched again.
@@ -582,7 +582,7 @@ class WMSMapViewer:
             # If territory_circle_different_colors is not defined, show only the nodes legend
             ax.legend(handles=[nodes_scatter], labels=["Node Locations"], loc="lower left", fontsize=font_size)
 
-        plt.tight_layout(pad=2)
+        plt.tight_layout(pad=3)
 
         # Save figure if a path is provided
         if figpath:
@@ -671,9 +671,9 @@ class WMSMapViewer:
         # Convert pixel positions to UTM coordinates for display
         x_ticks = np.linspace(0, self.img_width, num=5)
         y_ticks = np.linspace(0, self.img_height, num=5)
-        x_labels = [-584212 + int(self.bbox_utm[0] + (tick / self.img_width) * (self.bbox_utm[2] - self.bbox_utm[0]))
+        x_labels = [-434421 + int(self.bbox_utm[0] + (tick / self.img_width) * (self.bbox_utm[2] - self.bbox_utm[0]))
                     for tick in x_ticks]
-        y_labels = [-5211754 + int(
+        y_labels = [-5761732 + int(
             self.bbox_utm[1] + ((self.img_height - tick) / self.img_height) * (self.bbox_utm[3] - self.bbox_utm[1])) for
                     tick in y_ticks]
 
@@ -687,8 +687,8 @@ class WMSMapViewer:
             label.set_rotation(0)
 
         # Additional formatting
-        ax.set_xlabel("UTM 33N Easting [+584212m]", fontsize=font_size)
-        ax.set_ylabel("UTM 33N Northing [+5211754m]", fontsize=font_size)
+        ax.set_xlabel("UTM 33N Easting [+584,212m]", fontsize=font_size)
+        ax.set_ylabel("UTM 33N Northing [+5,211,754m]", fontsize=font_size)
         ax.set_xlim((min(x_ticks), max(x_ticks)))
         ax.set_ylim((max(y_ticks), min(y_ticks)))
 
@@ -704,7 +704,7 @@ class WMSMapViewer:
         ax.legend(
             handles=[num_points_legend, *ax.get_legend_handles_labels()[0]],
             loc="upper right",
-            fontsize=font_size
+            fontsize=font_size-7
         )
 
         plt.tight_layout()

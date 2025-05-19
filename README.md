@@ -6,19 +6,6 @@
   <img src="pics/TASE_grabs.png" alt="TASE Workflow" width="750">
 </div>
 
-## Abstract 
-Accurate biodiversity assessment is fundamental for effective conservation management and environmental policy-making.
-But monitoring local species populations is time-consuming as experts can cover only one limited area at a time and is also prone to errors due to varying knowledge and experience by the experts. 
-Advances in low-cost autonomous recording units and AI-based classifiers offer new tools for species monitoring.
-However, current tools for acoustic species monitoring, while useful in identifying species, fall short in providing data on local populations. 
-This limitation emphasizes the demand for more sophisticated methods, as uncertainties in estimating species populations can lead to misleading conclusions and misclassification of conservation statuses. 
-In this work, we take a significant step towards more sophisticated monitoring by presenting a Territorial Acoustic Species Estimation approach, called TASE, to extract spatial, territorial patterns of species using acoustic sensor networks, allowing the estimation of territorial individuals of a species. 
-It requires a distributed sensor network and exploits the characteristic spatial distribution of territorial species. 
-We formalize TASE, apply it on bird acoustics, and share a proof-of-concept evaluation in a real-world deployment in a nature reserve, deploying 29 devices over 12 hectares. 
-We show that it works on-par compared to the time-consuming practice applied by bird experts and can provide novel insights into spatial use of sound-producing territorial species. 
-
-For details, please read our ([Pre-Print]( http://ssrn.com/abstract=5113322)) 
-
 ## Introduction
 
 This repo contains the TASE algorithm and scripts for processing data used for publication.
@@ -38,6 +25,17 @@ Feel free to use TASE for your acoustic analyses and research. Please cite as:
 }
 ```
 
+## Abstract 
+Accurate biodiversity assessment is fundamental for effective conservation management and environmental policy-making.
+However, monitoring local species populations is time-consuming, as experts can cover only one limited area at a time and are also prone to errors due to their varying knowledge and experience. 
+Advances in low-cost autonomous recording units and AI-based classifiers offer new tools for species monitoring.
+However, while helpful in identifying species, current tools for acoustic species monitoring fall short in providing data on local populations. 
+This limitation emphasizes the demand for more sophisticated methods, as uncertainties in estimating species populations can lead to misleading conclusions and misclassification of conservation statuses. 
+In this work, we take a significant step towards more sophisticated monitoring by presenting a Territorial Acoustic Species Estimation approach, called TASE, to extract spatial, territorial patterns of species using acoustic sensor networks, allowing the estimation of territorial individuals of a species. 
+It requires a distributed sensor network and exploits the characteristic spatial distribution of territorial species. 
+We formalize TASE, apply it to bird acoustics, and share a proof-of-concept evaluation in a real-world deployment in a nature reserve, deploying 29 devices over 12 hectares. 
+We show that it works on par with the time-consuming practice applied by bird experts and can provide novel insights into the spatial use of sound-producing territorial species. 
+For details, please read our ([Pre-Print]( http://ssrn.com/abstract=5113322))
 
 ## How to Use
 1. Clone the repository:
@@ -46,11 +44,13 @@ Feel free to use TASE for your acoustic analyses and research. Please cite as:
 git clone https://github.com/sys-uos/TASE.git
 ```
 
-2. Install the dependencies:
+2. Install the requirements (see ```requirements_Ubuntu20.04_Python3.8.txt ```or  ```requirements_Ubuntu24.04_Python3.12.txt ```) :
 
-    ```pip install -r requirements.txt```
+ ```
+ pip install -r requirements_UbuntuXX.04_Python3.XX.txt
+ ```
 
-3. See in ```main.py``` the method ```main_minimal_usage_example.py```.
+3. See in ```main.py``` the method ```main_minimal_usage_example```.
 
 ## Minimal Working Example
 
@@ -71,52 +71,69 @@ The script processes acoustic sensor network data to estimate bird territories b
 
 3. **Set Deployment Duration**: Defines a 10-minute subset for processing (to limit computation time).
 ```
-   dt_start = datetime.datetime(2023, 6, 3, 7, 0, 0)  # 07:00 AM CEST
-   dt_end = datetime.datetime(2023, 6, 3, 7, 10, 0)  # 07:10 AM CEST
-   deployment_start, deployment_end = dt1_aware.timestamp(), dt2_aware.timestamp()
+    berlin_tz = pytz.timezone("Europe/Berlin")
+    dt_start = datetime.datetime(2023, 6, 3, 9, 0, 0)  # 3rd June 2023, 09:00 in Berlin (CEST)
+    dt1_aware = berlin_tz.localize(dt_start)  # Make it timezone-aware
+    dt_end = datetime.datetime(2023, 6, 3, 10, 0, 0)  # 3rd June 2023, 10:00 in Berlin (CEST)
+    dt2_aware = berlin_tz.localize(dt_end)
+    deployment_start, deployment_end = dt1_aware.timestamp(), dt2_aware.timestamp()
 ```
 
 4. **Parse Classifier Results**: The script reads acoustic classification results and aligns them with timestamps.
 ```
-if not os.path.exists(out_pkl_file):
-    dict_devid_df = parse_classifications_as_dir(dir_path=dir_classification)
-    dict_devid_df = add_date_to_classification_dataframe(dict_devid_df, deployment_start)
-    dict_devid_df = check_and_fill_missing_entries(dict_devid_df)
-    save_classification_data(dict_devid_df, out_pkl_file)
+    if not os.path.exists(out_pkl_file):
+        dict_devid_df = parse_classifications_as_dir(dir_path=dir_classification)  # key: devid, value: dataframe
+        dict_devid_df = add_date_to_classification_dataframe(dict_devid_df, deployment_start)
+        dict_devid_df = check_and_fill_missing_entries(dict_devid_df)  # there shouldn't be any, but make sure no gaps exist
+        save_classification_data(dict_devid_df, out_pkl_file)
 ```
 
 5. **Define TASE Parameters**: Thresholds and configuration for the Territorial Acoustic Species Estimation (TASE) algorithm.: The script reads acoustic classification results and aligns them with timestamps.
 
 ```
-   params = Parameters(
-       threshold_R=0.8,
-       threshold_B=0.1,
-       TS_delta=0.2,
-       threshold_T=300,
-   )
+    params = Parameters(
+        threshold_R=0.8,
+        threshold_B=0.1,
+        TS_delta=0.2,
+        threshold_T=spec.max_root_2_leaf_distance(),
+        d_max=100,
+    )
 ```
 
-6. **Build Graph and Extract Territories**: Creates a directed graph and applies Delaunay triangulation to form a connectivity network. For each time step, the estimated bird locations are then stored.
+6.1. **Build Graph and Extract Territories**: 
+
 ```
-   graph = BirdEstimatorDirected()
-   graph.add_nodes_with_coordinates(device_list=location_data_list)
-   graph.add_classifications_for_each_node(pkl_file=out_pkl_file)
-   for ts in range(int(deployment_start) + 0, int(deployment_end) - 3, 1):
-        print(f"Apply TASE on Epoch-Time {ts} to {ts+3}")
-        graph.init_graph(directedGraph=True)
-        graph.set_weight_to_timestamp(ts)
-        graph.delauny(e_delta=0.2)
-        graph.remove_long_edges(threshold_meter=700.0)
+    graph = CustomizedGraph()  # by default, nothing happens here
+    graph.add_nodes_with_coordinates(device_list=node_locations_utm)  # add nodes, including their coordinates
+    graph.add_classifications_for_each_node(pkl_file=out_pkl_file)  # each node contains a list of their classification results
+```
+
+6.2. **Apply TASE for each window starting at deployment_start to deployment_end (refers to seconds)**
+```
+    territorial_subgraphs_all = {}  # key: epoch-timestamp, value: territorial subgraphs
+    for ts in range(int(deployment_start), int(deployment_end)-7, 1):  #  5 s gap between recordings + 3 s BirdNET gap = 8s time of last classification window
+        start_dt = datetime.datetime.fromtimestamp(ts, tz=berlin_tz)
+        end_dt = datetime.datetime.fromtimestamp(ts+3, tz=berlin_tz)  # the value 3 refers to 3 seconds, which is BirdNET's window
+        print(f"Apply TASE on period from {start_dt} to {end_dt}")
+        graph.init_graph(directedGraph=True)  # init the graph with the locations
+        graph.set_weight_to_timestamp(ts)  # set the weights of the node to a specific window
+        graph.delauny(e_delta=0.2)  # perform delauny algorithm, add edge only if condition is met
+        graph.remove_long_edges(d_max=params.d_max)  # remove edges that exceed 100m
+        # 6.3 Apply TASE-Algorithm to extract territorial subgraphs
         territorial_subgraphs = graph.tase(threshold_R=params.threshold_R,
                                            threshold_B=params.threshold_B,
                                            threshold_T=params.threshold_T,
                                            TS_delta=params.TS_delta)
+```
 
-        # --- Estimate the birds location and append them to location --- #
+6.3. **Derive representation for each territorial subgraph**
+
+```
         for root in territorial_subgraphs:
-            territorial_subgraphs[root]['location'] = calculate_weighted_centroid(territorial_subgraphs[root]['TS'])
+            territorial_subgraphs[root]['location'] = calculate_weighted_centroid_from_nxgraph(territorial_subgraphs[root]['TS'])
         territorial_subgraphs_all[ts] = territorial_subgraphs
 ```
+
 7. **Extract and Visualize Results**: Estimated species locations are extracted and plotted as a heatmap overlay on a geospatial map.
 ```
 dict_ts_centroids = extract_locations(territorial_subgraphs_all)
