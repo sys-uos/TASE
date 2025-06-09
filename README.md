@@ -1,75 +1,87 @@
-
-
 <div align="center">
-  <h1>Territorial Acoustic Species Estimation Algorithm</h1>
-  <p>Territorial Acoustic Species Estimation using Acoustic Sensor Networks using species classifiers such as BirdNET</p>
+  <h1>Territorial Acoustic Species Estimation (TASE)</h1>
+  <p>
+    An algorithm for estimating territorial individuals of acoustic species  
+    using distributed sensor networks and AI-based classifiers (e.g. BirdNET)
+  </p>
   <img src="pics/TASE_grabs.png" alt="TASE Workflow" width="750">
 </div>
 
+
+---
+
 ## Introduction
 
-This repo contains the TASE algorithm and scripts for processing data used for publication.
-This is the most advanced version of TASE for acoustic analyses, and we will keep this repository up-to-date and provide improved interfaces to enable scientists with no CS background to run the analysis.
 
-Feel free to use TASE for your acoustic analyses and research. Please cite as: 
+TASE (“Territorial Acoustic Species Estimation”) extracts spatial and territorial patterns of sound-producing species from recordings collected by a network of autonomous sensors. By combining low-cost recording units with AI classifiers, TASE automates the estimation of individual territories—matching or even exceeding the accuracy of manual expert surveys.
 
-```
+This repository hosts:
+- The core TASE algorithm  
+- Example scripts and minimal usage workflows  
+- Pre- and post-processing utilities for sensor metadata and classifier outputs  
+
+We aim to keep this repo up to date and user-friendly so that researchers without a CS background can easily apply TASE to their own acoustic deployments.
+
+---
+
+## Citation
+
+If you use TASE in your research, please cite:
+
+```bibtex
 @article{Bruggemann2025,
-  author    = {Brüggemann, Leonhard and Otten, Daniel and Sachser, Frederik and Aschenbruck, Nils},
-  title     = {Territorial Acoustic Species Estimation using Acoustic Sensor Networks},
-  year      = {2025},
-  month     = {January 8},
-  journal   = {SSRN Electronic Journal},
-  doi       = {10.2139/ssrn.5113322},
-  url       = {https://ssrn.com/abstract=5113322}
+  author  = {Brüggemann, Leonhard and Otten, Daniel and Sachser, Frederik and Aschenbruck, Nils},
+  title   = {Territorial Acoustic Species Estimation using Acoustic Sensor Networks},
+  journal = {SSRN Electronic Journal},
+  year    = {2025},
+  month   = {January 8},
+  doi     = {10.2139/ssrn.5113322},
+  url     = {https://ssrn.com/abstract=5113322}
 }
 ```
 
-## Abstract 
-Accurate biodiversity assessment is fundamental for effective conservation management and environmental policy-making.
-However, monitoring local species populations is time-consuming, as experts can cover only one limited area at a time and are also prone to errors due to their varying knowledge and experience. 
-Advances in low-cost autonomous recording units and AI-based classifiers offer new tools for species monitoring.
-However, while helpful in identifying species, current tools for acoustic species monitoring fall short in providing data on local populations. 
-This limitation emphasizes the demand for more sophisticated methods, as uncertainties in estimating species populations can lead to misleading conclusions and misclassification of conservation statuses. 
-In this work, we take a significant step towards more sophisticated monitoring by presenting a Territorial Acoustic Species Estimation approach, called TASE, to extract spatial, territorial patterns of species using acoustic sensor networks, allowing the estimation of territorial individuals of a species. 
-It requires a distributed sensor network and exploits the characteristic spatial distribution of territorial species. 
-We formalize TASE, apply it to bird acoustics, and share a proof-of-concept evaluation in a real-world deployment in a nature reserve, deploying 29 devices over 12 hectares. 
-We show that it works on par with the time-consuming practice applied by bird experts and can provide novel insights into the spatial use of sound-producing territorial species. 
-For details, please read our ([Pre-Print]( http://ssrn.com/abstract=5113322))
+---
 
 ## How to Use
 1. Clone the repository:
     
 ```
 git clone https://github.com/sys-uos/TASE.git
+cd TASE
 ```
 
 2. Install the requirements (see ```requirements_Ubuntu20.04_Python3.8.txt ```or  ```requirements_Ubuntu24.04_Python3.12.txt ```) :
 
  ```
- pip install -r requirements_UbuntuXX.04_Python3.XX.txt
- ```
+pip install -r requirements_Ubuntu20.04_Python3.8.txt
+# or
+pip install -r requirements_Ubuntu24.04_Python3.12.txt
+```
 
-3. See in ```main.py``` the method ```main_minimal_usage_example```.
+3. pip install -r requirements_Ubuntu20.04_Python3.8.txt
+# or
+pip install -r requirements_Ubuntu24.04_Python3.12.txt
+
+---
+
 
 ## Minimal Working Example
 
-This minimal working example demonstrates how to apply Territorial Acoustic Species Estimation (TASE) using a subset of data from a real-world deployment. 
-The script processes acoustic sensor network data to estimate bird territories based on Sylvia atricapilla recordings.
+This example estimates territories of Sylvia atricapilla from a 10-minute subset of real deployment data.
 
-1. **Define Species of Interest**: The script initializes the Sylvia atricapilla species from the core species definitions.
+1. **Initialize the species**
 
 ```
    spec = Sylvia_atricapilla()
 ```
 
-2. **Parse Node Locations**: The function reads node locations from a CSV file and converts them into UTM coordinates.
+2. **Load and convert node locations**
 ```
     node_locations = parse_audiomoth_locations(csv_node_locations)
    location_data_list = convert_wgs84_to_utm(node_locations, zone_number=32, zone_letter='N')
 ```
 
-3. **Set Deployment Duration**: Defines a 10-minute subset for processing (to limit computation time).
+3. **Define deployment window**
 ```
     berlin_tz = pytz.timezone("Europe/Berlin")
     dt_start = datetime.datetime(2023, 6, 3, 9, 0, 0)  # 3rd June 2023, 09:00 in Berlin (CEST)
@@ -79,7 +91,7 @@ The script processes acoustic sensor network data to estimate bird territories b
     deployment_start, deployment_end = dt1_aware.timestamp(), dt2_aware.timestamp()
 ```
 
-4. **Parse Classifier Results**: The script reads acoustic classification results and aligns them with timestamps.
+4. **Parse classifier outputs**
 ```
     if not os.path.exists(out_pkl_file):
         dict_devid_df = parse_classifications_as_dir(dir_path=dir_classification)  # key: devid, value: dataframe
@@ -88,7 +100,7 @@ The script processes acoustic sensor network data to estimate bird territories b
         save_classification_data(dict_devid_df, out_pkl_file)
 ```
 
-5. **Define TASE Parameters**: Thresholds and configuration for the Territorial Acoustic Species Estimation (TASE) algorithm.: The script reads acoustic classification results and aligns them with timestamps.
+5. **Configure TASE parameters**
 
 ```
     params = Parameters(
@@ -100,16 +112,13 @@ The script processes acoustic sensor network data to estimate bird territories b
     )
 ```
 
-6.1. **Build Graph and Extract Territories**: 
+6. **Build the spatio-temporal graph and run TASE**
 
 ```
     graph = CustomizedGraph()  # by default, nothing happens here
     graph.add_nodes_with_coordinates(device_list=node_locations_utm)  # add nodes, including their coordinates
     graph.add_classifications_for_each_node(pkl_file=out_pkl_file)  # each node contains a list of their classification results
-```
 
-6.2. **Apply TASE for each window starting at deployment_start to deployment_end (refers to seconds)**
-```
     territorial_subgraphs_all = {}  # key: epoch-timestamp, value: territorial subgraphs
     for ts in range(int(deployment_start), int(deployment_end)-7, 1):  #  5 s gap between recordings + 3 s BirdNET gap = 8s time of last classification window
         start_dt = datetime.datetime.fromtimestamp(ts, tz=berlin_tz)
@@ -124,17 +133,13 @@ The script processes acoustic sensor network data to estimate bird territories b
                                            threshold_B=params.threshold_B,
                                            threshold_T=params.threshold_T,
                                            TS_delta=params.TS_delta)
-```
-
-6.3. **Derive representation for each territorial subgraph**
-
-```
+       # compute centroids
         for root in territorial_subgraphs:
             territorial_subgraphs[root]['location'] = calculate_weighted_centroid_from_nxgraph(territorial_subgraphs[root]['TS'])
         territorial_subgraphs_all[ts] = territorial_subgraphs
 ```
 
-7. **Extract and Visualize Results**: Estimated species locations are extracted and plotted as a heatmap overlay on a geospatial map.
+7. **Visualize territories**
 ```
 dict_ts_centroids = extract_locations(territorial_subgraphs_all)
 viewer = WMSMapViewer()
@@ -148,11 +153,12 @@ viewer.display_with_heatmap(font_size=16, kde_bw_param=0.2, vmax=0.0001, figpath
    <img src="./pics/example_heatmap.png" alt="TASE Heatmap" width="300">
 </div>
 
+---
 
 ## Adapting TASE for custom Deployment
 
-The minimal working example above serves as a good reference for adapting TASE to a custom deployment. The main steps need to be adjusted based on specific requirements. 
-It is recommended to experiment with different parameters when applying and visualizing the results.
+The minimal working example above is a good reference for adapting TASE to a custom deployment. The main steps need to be adjusted based on specific requirements. 
+Experimenting with different parameters when applying and visualizing the results is recommended.
 
 1. **Create a Custom Species Class**: Define a new class that inherits from core.species.Species and set the required attributes:
 ```
@@ -162,7 +168,7 @@ class SomeCustomClass(core.species.Species):
         self.eng_name = "Custom Name"            # English Name
 ```
 
-2. **Parse Location Data**: Ensure that the location data is formatted as a list of Recording_Node objects (List[Recording_Node]).
+2. **Parse Location Data**: Ensure the location data is formatted as a list of Recording_Node objects (List[Recording_Node]).
 
 
 3. **Calculate Deployment Start and End**: Convert the deployment's start and end times into epoch timestamps.
@@ -171,20 +177,21 @@ class SomeCustomClass(core.species.Species):
 4. **Parse Classification Results**: Convert the classification results into a pandas DataFrame for processing.
 
 
-5. **Set TASE Parameters**: Configure the parameters specific to your deployment to optimize performance.
+    5. **Set TASE Parameters**: Configure the parameters specific to your deployment to optimize performance.
 
 
-6. **Apply TASE Across the Deployment Duration**: Run the TASE algorithm over the entire deployment period to estimate species territories.
+6. **Apply TASE Across the Deployment Duration**: Run the TASE algorithm to estimate species territories over the entire deployment period.
 
-
+---
 
 ## Integrate Data used in Publication for Replication
-The data used in this project have been processed using the university service. Unfortunately, the original directory structure could not be preserved. Instead, the data are provided as a split .zip archive that must be recombined (refer to the provided link for instructions).
+The data used in the related paper have been processed using the university service. Unfortunately, the original directory structure could not be preserved. Instead, the data are provided as a split .zip archive that must be recombined (refer to the provided link for instructions).
 
-Once the unzipped directory is available, e.g., on an external drive, it can be easily accessed by creating a symbolic link. In Linux, this can be done by executing the following command within the cloned Github repository: ln -s path/to/unzipped_dir ./data
+Once the unzipped directory is available, e.g., on an external drive, it can be easily integrated by creating a symbolic link. In Linux, this can be done by executing the following command within the cloned Github repository: ln -s path/to/unzipped_dir ./data
 
 Data available at: [Link](TODO)
 
+---
 
 ## Contact
 For questions or issues, please contact [brueggemann@uni-osnabrueck.de].
