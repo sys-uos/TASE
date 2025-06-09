@@ -109,5 +109,5 @@ if __name__ == "__main__":
     main_minimal_usage_example()
 
     # To reproduce the results of the paper, check the following function:
-    evaluation_of_deployment_20230603()
+    # evaluation_of_deployment_20230603()
 
