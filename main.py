@@ -98,8 +98,8 @@ def main_minimal_usage_example():
     viewer.add_circleset_from_utm(centerset=spec.ground_truth)
     viewer.add_node_locations(node_locations_utm, zone_number=32, zone_letter='N')
     viewer.display_with_pointcloud(point_size=20,font_size=27,alpha=0.5, figpath="./TASE/example/example_pointcloud.png")
-    # viewer.display_with_heatmap_and_groundtruth(font_size=25, bw_method=spec.bw, heatmap_vmax=spec.heatmap_vmax,
-    #                                             figpath="./TASE/example/example_heatmap.png", alpha=0.5)
+    viewer.display_with_heatmap_and_groundtruth(font_size=25, bw_method=spec.bw, heatmap_vmax=spec.heatmap_vmax,
+                                                figpath="./TASE/example/example_heatmap.png", alpha=0.5)
     print("Heatmap saved at: ./TASE/example/example_heatmap.pdf")
     print("Minimal Example ended successfully!")
 
