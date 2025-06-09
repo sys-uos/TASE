@@ -142,7 +142,7 @@ def parse_data_from_20230603():
     for spec in evaluation_specs():
         dict_devid_df = parse_classification_data(spec, deployment_start, deployment_end)
         dict_devid_df = check_and_fill_missing_entries(dict_devid_df)
-        output_dir = f"./data/20230603/processed/classifications/pkl/{spec.lat_name.replace(' ', '_')}"
+        output_dir = f"./TASE/data/20230603/processed/classifications/pkl/{spec.lat_name.replace(' ', '_')}"
         filename = spec.lat_name.replace(' ', '_') + ".pkl"
         fpath = os.path.join(output_dir, filename)
         save_classification_data(dict_devid_df, fpath)

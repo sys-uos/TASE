@@ -16,22 +16,22 @@ def apply_tase_for_all_20230603(spec=Phoenicurs_phoenicurus(), font_size=12):
     deployment_start, deployment_end = deployment_duration()
 
     # --- Parse Node Locations --- #
-    csv_node_locations = "./data/20230603/processed/locations/Audiomoth_DeploymentIDs2AudiomothIDs.csv"
+    csv_node_locations = "./TASE/data/20230603/processed/locations/Audiomoth_DeploymentIDs2AudiomothIDs.csv"
     node_locations: [Recording_Node] = parse_audiomoth_locations(csv_node_locations)
     location_data_list = convert_wgs84_to_utm(node_locations, zone_number=32, zone_letter='N')
 
     # --- Define output directory --- #
-    fpath = "./data/20230603/processed/tase"
+    fpath = "./TASE/data/20230603/processed/tase"
     os.makedirs(fpath, exist_ok=True)
 
     # --- Apply TASE with different set of parameters --- #
     for spec in evaluation_specs():
-        dir_classification = f"./data/20230603/processed/classifications/species_specific/{spec.lat_name.replace(' ', '_')}"
-        pkl_dir = f"./data/20230603/processed/classifications/pkl/{spec.lat_name.replace(' ', '_')}"
+        dir_classification = f"./TASE/data/20230603/processed/classifications/species_specific/{spec.lat_name.replace(' ', '_')}"
+        pkl_dir = f"./TASE/data/20230603/processed/classifications/pkl/{spec.lat_name.replace(' ', '_')}"
         filename = "-".join(os.path.normpath(dir_classification).split(os.sep)[-1:]) + ".pkl"
 
         for params in get_TASE_ParameterSet(spec):  # --- Define Parameters of TASE --- #
-            output_dir = f"./data/20230603/processed/tase/{os.path.normpath(dir_classification).split(os.sep)[-1]}/"
+            output_dir = f"./TASE/data/20230603/processed/tase/{os.path.normpath(dir_classification).split(os.sep)[-1]}/"
             ofilename = params.to_string(delimiter="-") + ".pkl"
             if os.path.exists(os.path.join(output_dir, ofilename)):
                 continue
@@ -58,7 +58,7 @@ def apply_tase_for_all_20230603(spec=Phoenicurs_phoenicurus(), font_size=12):
                 if (ts-deployment_start) % 900 == 0:
                     print(f"Classified ({spec.lat_name}): {ts-deployment_start} of {deployment_end -deployment_start}")
 
-            output_dir = f"./data/20230603/processed/tase/{os.path.normpath(dir_classification).split(os.sep)[-1]}/"
+            output_dir = f"./TASE/data/20230603/processed/tase/{os.path.normpath(dir_classification).split(os.sep)[-1]}/"
             ofilename = params.to_string(delimiter="-") + ".pkl"
             os.makedirs(os.path.join(output_dir), exist_ok=True)
 

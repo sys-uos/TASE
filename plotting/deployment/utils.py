@@ -42,7 +42,7 @@ def deployment_node_locations():
         A list of location data in UTM format, obtained by converting
         the parsed `Recording_Node` objects.
     """
-    csv_node_locations = "./data/20230603/processed/locations/Audiomoth_DeploymentIDs2AudiomothIDs.csv"
+    csv_node_locations = "./TASE/data/20230603/processed/locations/Audiomoth_DeploymentIDs2AudiomothIDs.csv"
     node_locations: [Recording_Node] = parse_audiomoth_locations(csv_node_locations)
     location_data_list = convert_wgs84_to_utm(node_locations, zone_number=32, zone_letter='N')
     return location_data_list

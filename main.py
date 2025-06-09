@@ -2,6 +2,7 @@ import os.path
 import pytz
 import datetime
 
+from TASE.plotting.deployment.main import evaluation_of_deployment_20230603
 from TASE.plotting.deployment.parsing import check_and_fill_missing_entries, \
     save_classification_data
 from TASE.plotting.deployment.species import Sylvia_atricapilla
@@ -105,6 +106,6 @@ if __name__ == "__main__":
     # To run a minimal working example
     main_minimal_usage_example()
 
-    # To reproduce the results run the following code:
+    # To reproduce the results of the paper, check the following function:
     # evaluation_of_deployment_20230603()
 

@@ -19,12 +19,12 @@ def make_plots_for_formalization(spec=Phoenicurs_phoenicurus(), font_size=22):
     deployment_start, deployment_end = deployment_duration()
 
     # --- Parse Node Locations --- #
-    csv_node_locations = "./data/20230603/processed/locations/Audiomoth_DeploymentIDs2AudiomothIDs.csv"
+    csv_node_locations = "./TASE/data/20230603/processed/locations/Audiomoth_DeploymentIDs2AudiomothIDs.csv"
     node_locations: [Recording_Node] = parse_audiomoth_locations(csv_node_locations)
     location_data_list = convert_wgs84_to_utm(node_locations, zone_number=32, zone_letter='N')
 
     # --- Define output directory --- #
-    fpath = "./plotting/plots/formalization/"
+    fpath = "./TASE/plotting/plots/formalization/"
     os.makedirs(fpath, exist_ok=True)
 
     points = [[node.lat, node.lon] for node in location_data_list]
@@ -46,8 +46,8 @@ def make_plots_for_formalization(spec=Phoenicurs_phoenicurus(), font_size=22):
     )
 
     # --- Build path to the classification --- #
-    dir_classification = f"./data/20230603/processed/classifications/species_specific/{spec.lat_name.replace(' ', '_')}"
-    output_dir = f"./data/20230603/processed/classifications/pkl/{os.path.normpath(dir_classification).split(os.sep)[-1]}"
+    dir_classification = f"./TASE/data/20230603/processed/classifications/species_specific/{spec.lat_name.replace(' ', '_')}"
+    output_dir = f"./TASE/data/20230603/processed/classifications/pkl/{os.path.normpath(dir_classification).split(os.sep)[-1]}"
     filename = spec.lat_name.replace(' ', '_') + ".pkl"
     pkl_file = os.path.join(output_dir, filename)
 
@@ -62,7 +62,7 @@ def make_plots_for_formalization(spec=Phoenicurs_phoenicurus(), font_size=22):
                     14: 0.48, 9: 0.57, 10: 0.6, 29: 0.21}  # Node 1 has weight 5.0, node 3 has weight 10.0
     nx.set_node_attributes(graph.G, node_weights, name='weight')
     graph.delauny(e_delta=params.e_delta)
-    graph.remove_long_edges(threshold_meter=params.d_max)
+    graph.remove_long_edges(d_max=params.d_max)
 
     # --- Create the WMSMapViewer instance --- #
     viewer = WMSMapViewer()
@@ -84,10 +84,10 @@ def make_plots_for_formalization(spec=Phoenicurs_phoenicurus(), font_size=22):
     params = get_TASE_ParameterSet(spec)[0]
     params_string = params.to_string(delimiter='-')
     fn_spec = spec.lat_name.replace(" ", "_")
-    path = f"./data/20230603/processed/tase/{fn_spec}/{params_string}.pkl"
+    path = f"./TASE/data/20230603/processed/tase/{fn_spec}/{params_string}.pkl"
 
     # --- Define output directory --- #
-    odir = f"./plotting/plots/formalization/"
+    odir = f"./TASE/plotting/plots/formalization/"
     os.makedirs(odir, exist_ok=True)
 
     with open(path, "rb") as f:

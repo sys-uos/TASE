@@ -86,39 +86,38 @@ def create_boxplot_gain_for_sensitivies(data):
 
 
 def evaluate_range_recordings():
-    def list_dirs_files(path, spec="Common Chaffinch", nightingale_suffix="loud", with_filename=False):
-        print(path)
+    def list_dirs_files(path, spec="Common Chaffinch", nightingale_suffix="", with_filename=False):
         # Check if the path is a valid directory
         if not os.path.isdir(path):
-            return "The specified path is not a valid directory."
+            print("The specified path is not a valid directory.")
+            exit(-1)
 
         data = []
         for dirpath, dirnames, filenames in os.walk(path):
             for filename in filenames:
-                sensitivity = float(os.path.basename(os.path.dirname(dirpath)).split('s')[1])
+                sensitivity = float(os.path.basename(os.path.dirname(dirpath)).split('sensitivity-')[1])
                 distance = float(os.path.basename(dirpath).split('m')[0])
                 with open(os.path.join(dirpath, filename), 'r') as f:
-                    print(filename)
                     confidences = []
                     for line in f:
                         if spec in line:
                             confidences.append(float(line.strip().split('\t')[9]))
-                    if spec == "Common Nightingale":
-                        spec2 = spec + "_" + nightingale_suffix
-                    else:
-                        spec2 = spec
+                    spec_ = spec
+                    if nightingale_suffix != "":
+                        spec_ += "_" + nightingale_suffix
 
                     if len(confidences) != 0:
                         confidence = np.max(confidences)
                         if with_filename:
-                            data.append((spec2, sensitivity, distance, confidence, filename.split('.BirdNET')[0]))
+                            data.append((spec_, sensitivity, distance, confidence, filename.split('.BirdNET')[0]))
                         else:
-                            data.append((spec2, sensitivity, distance, confidence))
+                            data.append((spec_, sensitivity, distance, confidence))
 
         if with_filename:
             df = pd.DataFrame(data, columns=['species', 'sensitivity', 'distance', 'confidence', 'filename'])
         else:
             df = pd.DataFrame(data, columns=['species', 'sensitivity', 'distance', 'confidence'])
+
         return df
 
     def calc_correlation(df):
@@ -139,43 +138,44 @@ def evaluate_range_recordings():
 
     def print_correlation():
         # Replace '/path/to/directory' with the path to the directory you want to examine
-        directory_paths = ['./data/20230603/processed/range_analysis/fringilla_coelebs',
-                           './data/20230603/processed/range_analysis/turdus_philomelos',
-                           './data/20230603/processed/range_analysis/regulus_regulus']
+        directory_paths = ['./TASE/data/201912/processed/classifications/92dB_Fringilla_Coelebs',
+                           './TASE/data/201912/processed/classifications/100dB_Turdus_Philomelos',
+                           './TASE/data/201912/processed/classifications/74dB_Regulus_Regulus']
         specs = ["Common Chaffinch", "Song Thrush", "Goldcrest", "Common Nightingale", "Common Nightingale"]
         df = None
-        df_specs = ["Common Chaffinch", "Song Thrush", "Goldcrest", "Common Nightingale_loud", "Common Nightingale_silent"]
-        for i, path in enumerate(directory_paths):
-            df2 = list_dirs_files(path, specs[i])
-            df = pd.concat([df, df2], ignore_index=True)
-
-        path = './data/20230603/processed/range_analysis/luscinia_megarhynchos_silent'
-        df2 = list_dirs_files(path, specs[3], nightingale_suffix="silent")
-        df = pd.concat([df, df2], ignore_index=True)
-        path = './data/20230603/processed/range_analysis/luscinia_megarhynchos_loud'
-        df2 = list_dirs_files(path, specs[4], nightingale_suffix="loud")
-        df = pd.concat([df, df2], ignore_index=True)
-        print(df)
-        calc_correlation(df)
-
-    def parse_data_as_dataframe():
-        # Replace '/path/to/directory' with the path to the directory you want to examine
-        directory_paths = ['./data/20230603/processed/range_analysis/fringilla_coelebs',
-                           './data/20230603/processed/range_analysis/turdus_philomelos',
-                           './data/20230603/processed/range_analysis/regulus_regulus']
-        specs = ["Common Chaffinch", "Song Thrush", "Goldcrest", "Common Nightingale", "Common Nightingale"]
-        df = None
-        df_specs = ["Common Chaffinch", "Song Thrush", "Goldcrest", "Common Nightingale_loud",
-                    "Common Nightingale_silent"]
         for i, path in enumerate(directory_paths):
             df2 = list_dirs_files(path, specs[i], with_filename=False)
             df = pd.concat([df, df2], ignore_index=True)
 
-        path = './data/20230603/processed/range_analysis/luscinia_megarhynchos_silent'
-        df2 = list_dirs_files(path, specs[3], nightingale_suffix="silent", with_filename=False)
+        directory_path = './TASE/data/201912/processed/classifications/86dB_Luscinia_Megarhynchos'
+                           # './TASE/data/201912/processed/classifications/75dB_Luscinia_Megarhynchos']
+        df2 = list_dirs_files(directory_path, specs[3], nightingale_suffix="86dB", with_filename=False)
         df = pd.concat([df, df2], ignore_index=True)
-        path = './data/20230603/processed/range_analysis/luscinia_megarhynchos_loud'
-        df2 = list_dirs_files(path, specs[4], nightingale_suffix="loud", with_filename=False)
+
+        directory_path = './TASE/data/201912/processed/classifications/75dB_Luscinia_Megarhynchos'
+        df2 = list_dirs_files(directory_path, specs[4], nightingale_suffix="74dB", with_filename=False)
+        df = pd.concat([df, df2], ignore_index=True)
+
+        calc_correlation(df)
+
+    def parse_data_as_dataframe():
+        # Replace '/path/to/directory' with the path to the directory you want to examine
+        directory_paths = ['./TASE/data/201912/processed/classifications/92dB_Fringilla_Coelebs',
+                           './TASE/data/201912/processed/classifications/100dB_Turdus_Philomelos',
+                           './TASE/data/201912/processed/classifications/74dB_Regulus_Regulus']
+        specs = ["Common Chaffinch", "Song Thrush", "Goldcrest", "Common Nightingale", "Common Nightingale"]
+        df = None
+        for i, path in enumerate(directory_paths):
+            df2 = list_dirs_files(path, specs[i], with_filename=False)
+            df = pd.concat([df, df2], ignore_index=True)
+
+        directory_path = './TASE/data/201912/processed/classifications/86dB_Luscinia_Megarhynchos'
+                           # './TASE/data/201912/processed/classifications/75dB_Luscinia_Megarhynchos']
+        df2 = list_dirs_files(directory_path, specs[3], nightingale_suffix="86dB", with_filename=False)
+        df = pd.concat([df, df2], ignore_index=True)
+
+        directory_path = './TASE/data/201912/processed/classifications/75dB_Luscinia_Megarhynchos'
+        df2 = list_dirs_files(directory_path, specs[4], nightingale_suffix="74dB", with_filename=False)
         df = pd.concat([df, df2], ignore_index=True)
 
         return df
@@ -185,8 +185,8 @@ def evaluate_range_recordings():
         df['species'] = df['species'].replace({
             'Song Thrush': 'Song Thrush (100 dB)',
             'Common Chaffinch': 'Common Chaffinch (92 dB)',
-            'Common Nightingale_loud': 'Common Nightingale (86 dB)',
-            'Common Nightingale_silent': 'Common Nightingale (75 dB)',
+            'Common Nightingale_86dB': 'Common Nightingale (86 dB)',
+            'Common Nightingale_75dB': 'Common Nightingale (75 dB)',
             'Goldcrest': 'Goldcrest (74 dB)'
         })
 
@@ -233,7 +233,7 @@ def evaluate_range_recordings():
     df = parse_data_as_dataframe()
 
     # --- Define output directory --- #
-    dirpath = "./plotting/plots/range_analysis/"
+    dirpath = "./TASE/plotting/plots/range_analysis/"
     os.makedirs(dirpath, exist_ok=True)
 
     # --- Make Plot and calculate correlation --- #

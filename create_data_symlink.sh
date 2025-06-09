@@ -1,1 +1,1 @@
-ln -s /media/caspar/PortableSSD/TASE_Github_data/data ./data
+ln -s /PATH/TO_TASE_ASNet ./data

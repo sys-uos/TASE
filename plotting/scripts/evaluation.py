@@ -30,10 +30,10 @@ def make_plots_of_species_heatmaps():
         for params in get_TASE_ParameterSet(spec):
             params_string = params.to_string(delimiter='-')
             # path = f"./data/20230603/processed/tase_correct_config/{fn_spec}/{params_string}.pkl"
-            path = f"./data/20230603/processed/tase/{fn_spec}/{params_string}.pkl"
+            path = f"./TASE/data/20230603/processed/tase/{fn_spec}/{params_string}.pkl"
 
             # --- Define output directory --- #
-            odir = f"./plotting/plots/evaluation/{fn_spec}/"
+            odir = f"./TASE/plotting/plots/evaluation/{fn_spec}/"
             os.makedirs(odir, exist_ok=True)
 
             with open(path, "rb") as f:
@@ -63,15 +63,15 @@ def make_plots_of_species_heatmaps():
 def make_plots_about_impact_of_interference():
 
     def plot_methodological_impact_of_interference(spec, figpath=None, fontsize=30):
-        dir_classification = f"./data/20230603/processed/classifications/species_specific/{spec.lat_name.replace(' ', '_')}"
-        pkl_dir = f"./data/20230603/processed/classifications/pkl/{os.path.normpath(dir_classification).split(os.sep)[-1]}"
+        dir_classification = f"./TASE/data/20230603/processed/classifications/species_specific/{spec.lat_name.replace(' ', '_')}"
+        pkl_dir = f"./TASE/data/20230603/processed/classifications/pkl/{os.path.normpath(dir_classification).split(os.sep)[-1]}"
         filename = spec.lat_name.replace(' ', '_') + ".pkl"
 
         # --- Define deployment duration --- #
         deployment_start, deployment_end = deployment_duration()
 
         # --- Parse Node Locations --- #
-        csv_node_locations = "./data/20230603/processed/locations/Audiomoth_DeploymentIDs2AudiomothIDs.csv"
+        csv_node_locations = "./TASE/data/20230603/processed/locations/Audiomoth_DeploymentIDs2AudiomothIDs.csv"
         node_locations: [Recording_Node] = parse_audiomoth_locations(csv_node_locations)
         location_data_list = convert_wgs84_to_utm(node_locations, zone_number=32, zone_letter='N')
 
@@ -138,7 +138,7 @@ def make_plots_about_impact_of_interference():
     for spec in [Phoenicurs_phoenicurus(), Turdus_philomelos()]:
         # --- Define output directory --- #
         fn_spec = spec.lat_name.replace(" ", "_")
-        odir = f"./plotting/plots/evaluation/Analysis/interference/{fn_spec}/"
+        odir = f"./TASE/plotting/plots/evaluation/Analysis/interference/{fn_spec}/"
         os.makedirs(odir, exist_ok=True)
         figpath = os.path.join(odir, f"{fn_spec}.pdf")
 
@@ -150,7 +150,7 @@ def make_plots_about_methodological_challenges(spec=Phoenicurs_phoenicurus(), fo
     deployment_start, deployment_end = deployment_duration()
 
     # --- Parse Node Locations --- #
-    csv_node_locations = "./data/20230603/processed/locations/Audiomoth_DeploymentIDs2AudiomothIDs.csv"
+    csv_node_locations = "./TASE/data/20230603/processed/locations/Audiomoth_DeploymentIDs2AudiomothIDs.csv"
     node_locations: [Recording_Node] = parse_audiomoth_locations(csv_node_locations)
     location_data_list = convert_wgs84_to_utm(node_locations, zone_number=32, zone_letter='N')
 
@@ -165,14 +165,14 @@ def make_plots_about_methodological_challenges(spec=Phoenicurs_phoenicurus(), fo
     )
 
     # --- Build path to the classification --- #
-    dir_classification = f"./data/20230603/processed/classifications/species_specific/{spec.lat_name.replace(' ', '_')}"
-    output_dir = f"./data/20230603/processed/classifications/pkl/{os.path.normpath(dir_classification).split(os.sep)[-1]}"
+    dir_classification = f"./TASE/data/20230603/processed/classifications/species_specific/{spec.lat_name.replace(' ', '_')}"
+    output_dir = f"./TASE/data/20230603/processed/classifications/pkl/{os.path.normpath(dir_classification).split(os.sep)[-1]}"
     filename = spec.lat_name.replace(' ', '_') + ".pkl"
     pkl_file = os.path.join(output_dir, filename)
 
     for time_interval in [5, 41, 2268, 2562, 2621]:
         # --- Define output directory --- #
-        odir = f"./plotting/plots/evaluation/Analysis/methodological_errors/"
+        odir = f"./TASE/plotting/plots/evaluation/Analysis/methodological_errors/"
         os.makedirs(odir, exist_ok=True)
         fn_spec = spec.lat_name.replace(" ", "_")
         figpath = os.path.join(odir, f"{fn_spec}_{time_interval}.pdf")
@@ -201,7 +201,7 @@ def make_plots_about_impact_of_timeintervals():
     deployment_start, deployment_end = deployment_duration()
 
     # --- Parse Node Locations --- #
-    csv_node_locations = "./data/20230603/processed/locations/Audiomoth_DeploymentIDs2AudiomothIDs.csv"
+    csv_node_locations = "./TASE/data/20230603/processed/locations/Audiomoth_DeploymentIDs2AudiomothIDs.csv"
     node_locations: [Recording_Node] = parse_audiomoth_locations(csv_node_locations)
     location_data_list = convert_wgs84_to_utm(node_locations, zone_number=32, zone_letter='N')
 
@@ -219,10 +219,10 @@ def make_plots_about_impact_of_timeintervals():
     )
     params_string = params.to_string(delimiter='-')
 
-    path = f"./data/20230603/processed/tase/{fn_spec}/{params_string}.pkl"
+    path = f"./TASE/data/20230603/processed/tase/{fn_spec}/{params_string}.pkl"
 
     # --- Define output directory --- #
-    odir = f"./plotting/plots/evaluation/{fn_spec}_short_timespans/"
+    odir = f"./TASE/plotting/plots/evaluation/{fn_spec}_short_timespans/"
     os.makedirs(odir, exist_ok=True)
 
     with open(path, "rb") as f:

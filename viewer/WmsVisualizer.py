@@ -1,7 +1,9 @@
 import datetime
 import os
-
+from typing import List, Tuple
+import cairosvg
 from matplotlib.colors import LinearSegmentedColormap
+from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 from matplotlib.ticker import ScalarFormatter
 from owslib.wms import WebMapService
 from PIL import Image
@@ -14,9 +16,12 @@ import matplotlib.patches as mpatches
 from matplotlib.colors import Normalize
 from matplotlib.cm import ScalarMappable
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-
+from io import BytesIO
 
 from matplotlib import rc
+
+from TASE.src.models import Recording_Node
+
 rc('font', **{'family': 'serif', 'serif': ['Computer Modern']})
 rc('text', usetex=True)
 
@@ -87,6 +92,10 @@ class WMSMapViewer:
         if wms_service is None:
             wms_service = {"url": "https://ows.terrestris.de/osm/service?", "version": "1.3.0", "layername": "OSM-WMS"}
         self.wms = WebMapService(wms_service["url"], version=wms_service["version"])
+        layer_names = list(self.wms.contents.keys())
+        print("Available layers:")
+        # for name in layer_names:
+        #     print("  -", name)
         self.layer_name = layer_name if layer_name != None else wms_service["layername"]
 
         left, bottom, right, top = bbox if bbox is not None else (8.05214167, 52.00720153, 8.05751681, 52.01278839)
@@ -114,7 +123,7 @@ class WMSMapViewer:
 
         # Define projections: WGS84 (lat/lon) and UTM (e.g. zone 32N for Germany)
         proj_wgs84 = Proj(proj="latlong", datum="WGS84")
-        proj_utm = Proj(proj="utm", zone=32, south=False)
+        proj_utm = Proj(proj="utm", zone=33, south=False)
         transformer = Transformer.from_proj(proj_wgs84, proj_utm, always_xy=True)
         # Convert each corner of the bounding box to UTM
         min_easting, min_northing = transformer.transform(self.bbox[0], self.bbox[1])
@@ -131,40 +140,43 @@ class WMSMapViewer:
         self.__fetch_map()
 
 
-    def __fetch_map(self, save_path="./TASE/map.wms"):
+    def __fetch_map(self, save_path="./map.wms"):
         """
         Fetches a map image from the WMS service and saves it to the specified location.
         If the map image already exists at the location, it will not be fetched again.
 
         :param save_path: The path where the map image should be saved.
         """
-        try:
-            # Check if the map image already exists
-            if os.path.exists(save_path):
-                print(f"Map image already exists at '{save_path}'.")
-                self.img = Image.open(save_path)
-                print("Loaded existing map image.")
-                return
+    # try:
+        # Check if the map image already exists
+        if os.path.exists(save_path):
+            print(f"Map image already exists at '{save_path}'.")
+            self.img = Image.open(save_path)
+            print("Loaded existing map image.")
+            return
 
-            # Fetch the map image from the WMS service
-            print(f"Requesting WMS map for layer '{self.layer_name}' with bbox {self.bbox}")
-            response = self.wms.getmap(
-                layers=[self.layer_name],
-                srs="EPSG:4326",
-                bbox=self.bbox,
-                size=(self.img_width, self.img_height),
-                format="image/png",
-                transparent=True,
-            )
-            self.img = Image.open(io.BytesIO(response.read()))
-            print("Map image fetched successfully.")
+        # Fetch the map image from the WMS service
+        print(f"Requesting WMS map for layer '{self.layer_name}' with bbox {self.bbox}")
 
-            # Save the image to the specified location
-            self.img.save(save_path, format="PNG")
-            print(f"Map image saved to '{save_path}'.")
+        response = self.wms.getmap(
+            layers=[self.layer_name],
+            srs="EPSG:4326",
+            bbox=self.bbox,
+            size=(self.img_width, self.img_height),
+            format="image/png",
+            transparent=True,
+        )
 
-        except Exception as e:
-            print(f"Error fetching or saving map image: {e}")
+        self.img = Image.open(io.BytesIO(response.read()))
+        print("Map image fetched successfully.")
+
+        print(self.img)
+        # Save the image to the specified location
+        self.img.save(save_path, format="PNG")
+        print(f"Map image saved to '{save_path}'.")
+
+    # except Exception as e:
+    #     print(f"Error fetching or saving map image: {e}")
 
 
     def show_map(self, alpha=0.25):
@@ -173,6 +185,7 @@ class WMSMapViewer:
             raise ValueError("Map image not fetched. Call fetch_map() first.")
 
         plt.imshow(self.img, alpha=alpha)
+        plt.show()
 
     def add_circleset_from_utm(self, centerset, color='red'):
         if self.img is None:
@@ -190,7 +203,6 @@ class WMSMapViewer:
     def add_node_locations(self, node_locations, zone_number=33, zone_letter='N'):
         for elem in node_locations:
             self.node_locations.append(self.__convert_utm_to_pixel(elem.lat, elem.lon, zone_number=zone_number, zone_letter=zone_letter))
-
 
     def add_and_convert_pointcloudUTM_2_pointcloudPIXEL(self, points_xy, zone_number=32, zone_letter='N'):
         if self.img is None:
@@ -256,6 +268,95 @@ class WMSMapViewer:
         radius_pixels = int(radius_meters * scale_avg)
 
         return radius_pixels
+
+    def display_with_nodes(
+            self,
+            nodes: List[Recording_Node],
+            zone_number: int,
+            zone_letter: str,
+            size: int = 75,
+            font_size: int = 12,
+            alpha: float = 0.5,
+            figpath: str = '',
+            icon_path: str = None,
+            icon_zoom: float = 0.1,
+            icon_raster_scale: float = 1.5,
+            text_offset: Tuple[float, float] = (3, 3),
+    ):
+        fig, ax = plt.subplots(figsize=(10, int(10/self.aspect_ratio)))
+
+        # convert UTM→pixel
+        self.node_locations = []
+        for node in nodes:
+            x_pix, y_pix = self.__convert_utm_to_pixel(
+                node.lat, node.lon,
+                zone_number=zone_number, zone_letter=zone_letter
+            )
+            self.node_locations.append((x_pix, y_pix))
+
+        # load & rasterize the icon once
+        if icon_path is not None:
+            # --- 1) Rasterize SVG → PNG bytes ---
+            png_bytes = cairosvg.svg2png(url=icon_path, scale=icon_raster_scale)
+            # --- 2) Load into PIL, convert to RGBA ---
+            buf = BytesIO(png_bytes)
+            pil_img = Image.open(buf).convert("RGBA")
+            # --- 3) To NumPy array for Matplotlib ---
+            icon_arr = np.asarray(pil_img)
+
+            # now place it at every node
+            for (x, y), node in zip(self.node_locations, nodes):
+                im = OffsetImage(icon_arr, zoom=icon_zoom)
+                ab = AnnotationBbox(
+                    im, (x, y),
+                    frameon=False,
+                    box_alignment=(0.5, 0.5),
+                    pad=0
+                )
+                ax.add_artist(ab)
+                # ax.text(
+                #     x + text_offset[0], y + text_offset[1], node.id,
+                #     fontsize=font_size, va='bottom', ha='left',
+                #     backgroundcolor='white', alpha=0.7
+                # )
+        else:
+            # fallback to the old scatter
+            xs, ys = zip(*self.node_locations)
+            ax.scatter(xs, ys, color='dimgray', marker='x', s=size, label='Recorder')
+            for (x, y), node in zip(self.node_locations, nodes):
+                ax.text(
+                    x + text_offset[0], y + text_offset[1], node.id,
+                    fontsize=font_size, va='bottom', ha='left',
+                    backgroundcolor='white', alpha=0.7
+                )
+
+        # draw the map underneath
+        ax.imshow(self.img, alpha=alpha)
+
+        # Convert pixel positions to UTM coordinates for display
+        x_ticks = np.linspace(0, self.img_width, num=5)
+        y_ticks = np.linspace(0, self.img_height, num=5)
+        x_labels = [-589968 + int(self.bbox_utm[0] + (tick / self.img_width) * (self.bbox_utm[2] - self.bbox_utm[0])) for tick in
+                    x_ticks]
+        y_labels = [ -5337430 +
+            int(self.bbox_utm[1] + ((self.img_height - tick) / self.img_height) * (self.bbox_utm[3] - self.bbox_utm[1]))
+            for tick in y_ticks]
+
+        ax.set_xticks(x_ticks)
+        ax.set_xticklabels(x_labels, fontsize=font_size)
+        ax.set_yticks(y_ticks)
+        ax.set_yticklabels(y_labels, fontsize=font_size)
+
+        # Additional formatting
+        ax.set_xlabel("UTM 33N Easting [+589,968m]", fontsize=font_size)
+        ax.set_ylabel("UTM 33N Northing [+5,337,430m]", fontsize=font_size)
+        ax.set_xlim((min(x_ticks), max(x_ticks)))
+        ax.set_ylim((max(y_ticks), min(y_ticks)))
+
+        plt.tight_layout()
+        if figpath:
+            plt.savefig(figpath)
+        plt.show()
 
 
     def display_with_heatmap(self, bw_method=0.2, size=20, font_size=20, alpha=0.5, figpath='', heatmap_vmax=0.0001):

@@ -15,7 +15,7 @@ def make_plots_for_problem_issue(spec=Phoenicurs_phoenicurus(), font_size=30):
     deployment_start, deployment_end = deployment_duration()
 
     # --- Parse Node Locations --- #
-    csv_node_locations = "./data/20230603/processed/locations/Audiomoth_DeploymentIDs2AudiomothIDs.csv"
+    csv_node_locations = "./TASE/data/20230603/processed/locations/Audiomoth_DeploymentIDs2AudiomothIDs.csv"
     node_locations: [Recording_Node] = parse_audiomoth_locations(csv_node_locations)
     location_data_list = convert_wgs84_to_utm(node_locations, zone_number=32, zone_letter='N')
 
@@ -24,18 +24,18 @@ def make_plots_for_problem_issue(spec=Phoenicurs_phoenicurus(), font_size=30):
         threshold_R=0.5,
         threshold_B=0.1,
         TS_delta=0.2,
-        threshold_T=100,
+        d_max=100,
         e_delta=0.2,
     )
 
     # --- Build path to the classification --- #
-    dir_classification = f"./data/20230603/processed/classifications/species_specific/{spec.lat_name.replace(' ', '_')}"
-    output_dir = f"./data/20230603/processed/classifications/pkl/{os.path.normpath(dir_classification).split(os.sep)[-1]}"
+    dir_classification = f"./TASE/data/20230603/processed/classifications/species_specific/{spec.lat_name.replace(' ', '_')}"
+    output_dir = f"./TASE/data/20230603/processed/classifications/pkl/{os.path.normpath(dir_classification).split(os.sep)[-1]}"
     filename = spec.lat_name.replace(' ', '_') + ".pkl"
     pkl_file = os.path.join(output_dir, filename)
 
     # --- Define output directory --- #
-    fpath = "./plotting/plots/problem_issue/"
+    fpath = "./TASE/plotting/plots/problem_issue/"
     os.makedirs(fpath, exist_ok=True)
 
     for ts in range(int(deployment_start+900), int(deployment_start+909)):  # [5] # range(tuple[0], tuple[1]):  #range(30, 100, 1):
@@ -46,7 +46,7 @@ def make_plots_for_problem_issue(spec=Phoenicurs_phoenicurus(), font_size=30):
         graph.set_weight_to_timestamp(ts)
         graph.init_graph(directedGraph=True)
         graph.delauny(e_delta=params.e_delta)
-        graph.remove_long_edges(threshold_meter=params.threshold_T)
+        graph.remove_long_edges(d_max=params.d_max)
 
         # Create the WMSMapViewer instance
         viewer = WMSMapViewer()
