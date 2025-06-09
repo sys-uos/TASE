@@ -99,10 +99,12 @@ class WMSMapViewer:
         self.layer_name = layer_name if layer_name != None else wms_service["layername"]
 
         left, bottom, right, top = bbox if bbox is not None else (8.05214167, 52.00720153, 8.05751681, 52.01278839)
-
+        # Margin factor (e.g., 0.05 for a 5% margin)
         margin_factor = 0.05
+        # Calculating the margin for each side
         width_margin = (right - left) * margin_factor
         height_margin = (top - bottom) * margin_factor
+        # Applying the margin
         self.bbox = (
             left - width_margin,
             bottom - height_margin,
@@ -113,6 +115,7 @@ class WMSMapViewer:
         # Calculate width and height
         width = self.bbox[2] - self.bbox[0]  # max_lon - min_lon
         height = self.bbox[3] - self.bbox[1]  # max_lat - min_lat
+
         # Derive the aspect ratio as width/height
         self.aspect_ratio = width / height
 
@@ -123,7 +126,7 @@ class WMSMapViewer:
 
         # Define projections: WGS84 (lat/lon) and UTM (e.g. zone 32N for Germany)
         proj_wgs84 = Proj(proj="latlong", datum="WGS84")
-        proj_utm = Proj(proj="utm", zone=33, south=False)
+        proj_utm = Proj(proj="utm", zone=32, south=False)
         transformer = Transformer.from_proj(proj_wgs84, proj_utm, always_xy=True)
         # Convert each corner of the bounding box to UTM
         min_easting, min_northing = transformer.transform(self.bbox[0], self.bbox[1])
@@ -788,8 +791,8 @@ class WMSMapViewer:
             label.set_rotation(0)
 
         # Additional formatting
-        ax.set_xlabel("UTM 33N Easting [+584,212m]", fontsize=font_size)
-        ax.set_ylabel("UTM 33N Northing [+5,211,754m]", fontsize=font_size)
+        ax.set_xlabel("UTM 32N Easting [+434,421m]", fontsize=font_size)
+        ax.set_ylabel("UTM 32N Northing [+5,761,732m]", fontsize=font_size)
         ax.set_xlim((min(x_ticks), max(x_ticks)))
         ax.set_ylim((max(y_ticks), min(y_ticks)))
 

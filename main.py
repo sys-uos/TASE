@@ -34,7 +34,7 @@ def main_minimal_usage_example():
 
     # 3. Define deployment duration (only a subset due to computation time)
     berlin_tz = pytz.timezone("Europe/Berlin")
-    dt_start = datetime.datetime(2023, 6, 3, 4, 0, 0)  # 3rd June 2023, 09:00 in Berlin (CEST)
+    dt_start = datetime.datetime(2023, 6, 3, 9, 55, 0)  # 3rd June 2023, 09:00 in Berlin (CEST)
     dt1_aware = berlin_tz.localize(dt_start)  # Make it timezone-aware
     dt_end = datetime.datetime(2023, 6, 3, 10, 0, 0)  # 3rd June 2023, 10:00 in Berlin (CEST)
     dt2_aware = berlin_tz.localize(dt_end)
@@ -88,16 +88,18 @@ def main_minimal_usage_example():
     # 7. Visualize the results
     dict_ts_centroids = extract_locations(territorial_subgraphs_all)  # for visualization, resulting in key: ts, value: centroid
 
+
     # A custom class for visualization with a background map is used that integrated wms-services
     viewer = WMSMapViewer(wms_service={"url": "http://www.wms.nrw.de/geobasis/wms_nw_dtk",
                                        "version": "1.3.0",
                                        "layername": "nw_dtk_col"})
     viewer.add_circleset_from_utm(centerset=spec.ground_truth)
     viewer.add_and_convert_pointcloudUTM_2_pointcloudPIXEL(dict_ts_centroids, zone_number=32, zone_letter='N')
+    viewer.add_circleset_from_utm(centerset=spec.ground_truth)
     viewer.add_node_locations(node_locations_utm, zone_number=32, zone_letter='N')
     viewer.display_with_pointcloud(point_size=20,font_size=27,alpha=0.5, figpath="./TASE/example/example_pointcloud.png")
-    viewer.display_with_heatmap_and_groundtruth(font_size=25, bw_method=spec.bw, heatmap_vmax=spec.heatmap_vmax,
-                                                figpath="./TASE/example/example_heatmap.png", alpha=0.5)
+    # viewer.display_with_heatmap_and_groundtruth(font_size=25, bw_method=spec.bw, heatmap_vmax=spec.heatmap_vmax,
+    #                                             figpath="./TASE/example/example_heatmap.png", alpha=0.5)
     print("Heatmap saved at: ./TASE/example/example_heatmap.pdf")
     print("Minimal Example ended successfully!")
 
@@ -107,5 +109,5 @@ if __name__ == "__main__":
     main_minimal_usage_example()
 
     # To reproduce the results of the paper, check the following function:
-    # evaluation_of_deployment_20230603()
+    evaluation_of_deployment_20230603()
 
