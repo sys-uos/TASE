@@ -170,3 +170,10 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 /.idea/
+
+ebcc.py
+fgsn.py
+fgsn/*
+manual_localization.py
+data*
+my_create_data_symlink.sh
