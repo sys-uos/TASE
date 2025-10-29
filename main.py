@@ -1,4 +1,5 @@
 import os.path
+from typing import List
 import pytz
 import datetime
 
@@ -29,7 +30,7 @@ def main_minimal_usage_example():
     spec = Sylvia_atricapilla()
 
     # 2. Parse Node Locations and convert to coordinate system
-    node_locations_wgs84: [Recording_Node] = parse_audiomoth_locations(csv_node_locations)
+    node_locations_wgs84: List[Recording_Node] = parse_audiomoth_locations(csv_node_locations)
     node_locations_utm = convert_wgs84_to_utm(node_locations_wgs84, zone_number=32, zone_letter='N')
 
     # 3. Define deployment duration (only a subset due to computation time)
